@@ -4,6 +4,8 @@
 
 int
 main(void){
-	printf(1, "Running getpcount: %d\n\tSuccess\n", getpcount());
-	return 0;
+        int running_count;
+        running_count = getpcount();
+        printf(1, "Processes currently running: %d\n", running_count);
+        return 0;
 }

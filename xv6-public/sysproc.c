@@ -12,32 +12,26 @@ struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
-	
-// static struct proc *initproc;
-	
+		
 int
 sys_getpcount(void)
 {
   struct proc *p;
-//  char *sp;
 
   acquire(&ptable.lock);
   int count = 0;
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    // UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE
+    // Process states: UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE
+    cprintf("Process: %s\nState: ", p->name);
     if(p->state == UNUSED){cprintf("UNUSED\n");}
     else if(p->state == EMBRYO){cprintf("EMBRYO\n");}
-    else if(p->state == SLEEPING){cprintf("SLEEPING\n");}
-    else if(p->state == RUNNABLE){cprintf("RUNNABLE\n");}
-    else if(p->state == RUNNING){cprintf("RUNNING\n");}
+    else if(p->state == SLEEPING){cprintf("SLEEPING\n");count++;}
+    else if(p->state == RUNNABLE){cprintf("RUNNABLE\n");count++;}
+    else if(p->state == RUNNING){cprintf("RUNNING\n");count++;}
     else if(p->state == ZOMBIE){cprintf("ZOMBIE\n");}
     else {cprintf("NONE\n");}
-    cprintf("proc: %s\nstatus: %s\n\n", p->name, p->state);
-    count++;
   }
   release(&ptable.lock);
-
-//  printf(1, "Final Count: %d\n", count);
   return count;
 }
 
