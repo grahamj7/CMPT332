@@ -7,5 +7,5 @@ main(void){
         int running_count;
         running_count = getpcount();
         printf(1, "Processes currently running: %d\n", running_count);
-        return 0;
+        exit();
 }
