@@ -3,6 +3,9 @@
 #include "string.h"
 #include "unistd.h"
 
+#define READ_END 0
+#define WRITE_END 1
+
 struct LinkedList{
     char **wordArray;
     int length;
@@ -53,37 +56,102 @@ void execute_command_cursor(struct LinkedList *cursor, int pipes_count, int **pi
     }
 }
 
-void execute_pipes(char **wordArray, int wordArray_length){
-    int j, childPID;
 
-    childPID = fork();
-    if ( -1 == childPID ) {
-        fprintf(stderr, "Error in forking.\n");
-        exit(1);
-    }
-    else if ( 0 == childPID ) { /* Child process to execute */
-        printf("Im a child! (PID: %d)\n", getpid());
-        printf("CMD: %s, Args: ", wordArray[0]);
-        
-        for(j = 1; j < wordArray_length; j++ ){
-            printf("%s, \n", wordArray[j]);
+void execute_pipes(struct LinkedList *cmd_list, int num_pipes){
+
+	int new_pipe[2], old_pipe[2], status, i, j, childPID;
+	
+	for( i = 0; i < num_pipes; i++ ){
+		if( i < num_pipes - 1) { /* Check if still more pipes to execute */
+			pipe( new_pipe );
+		}
+		
+		childPID = fork();
+		
+    	if ( -1 == childPID ) {
+        	fprintf(stderr, "Error in forking.\n");
+        	exit(1);
+    	}		
+		else if ( 0 == childPID ) { /* Child process to execute */
+			/* Check if this is not the first command */
+			if( i > 0 ){
+				close( old_pipe[WRITE_END] );
+				dup2( old_pipe[READ_END], 0 );
+				close( old_pipe[READ_END] );
+			}
+			
+			/* Check if there are further processes to execute */
+			if( i < num_pipes - 1){
+				close( new_pipe[READ_END] );
+				dup2( new_pipe[WRITE_END], 1 );
+				close( new_pipe[WRITE_END] );
+			}
+			
+			/* Execute current command */
+			if(-1 == execvp(cmd_list->wordArray[0], cmd_list->wordArray) ){
+            	fprintf(stderr, "Execution failed: CMD: %s, Args: ", cmd_list->wordArray[0]);
+            	for(j = 1; j < cmd_list->length -1; j++)
+                	fprintf(stderr, "%s, ", cmd_list->wordArray[j]);
+            	fprintf(stderr, "%s\n", cmd_list->wordArray[j]);
+            	fprintf(stderr, "Child %d exited\n", getpid());
+            	exit(1);
+        	}        
         }
-
-        if(execvp(wordArray[0], wordArray) == -1){
-            fprintf(stderr, "Execution failed: CMD: %s, Args: ", wordArray[0]);
-            for(j = 1; j < wordArray_length -1; j++)
-                fprintf(stderr, "%s, ", wordArray[j]);
-            fprintf(stderr, "%s\n", wordArray[j]);
-            fprintf(stderr, "Child %d exited\n", getpid());
-            exit(1);
-        }
-    }
-    else { /* Parent process waits for child to complete */
-        wait(NULL);
-
-        printf("I'm the parent! (PID: %d)\n", getpid());
-    }
-    
+        else{ /* Parent process waits for child to complete */
+        	/* Check if there was a prev command */
+        	if( i > 0 ){
+        		close( old_pipe[READ_END] );
+        		close( old_pipe[WRITE_END] );
+        	}
+        	
+        	/* Check if there is another command to execute */
+        	if( i < num_pipes - 1 ){
+        		old_pipe[READ_END] = new_pipe[READ_END];
+        		old_pipe[WRITE_END] = new_pipe[WRITE_END];
+        	}
+        	
+        	/* Wait for end of last command execution */
+        	if( i == num_pipes - 1 ){
+        		waitpid( childPID, &status, 0 );
+        	}
+    	}
+		cmd_list = cmd_list->next;	
+	}
+// 		while (cmd_list != NULL){
+//     	int j, childPID;
+// 
+//     	childPID = fork();
+//     	
+//     	if ( -1 == childPID ) {
+//         	fprintf(stderr, "Error in forking.\n");
+//         	exit(1);
+//     	}
+//     	
+//     	else if ( 0 == childPID ) { /* Child process to execute */
+//         	printf("Im a child! (PID: %d)\n", getpid());
+//         	printf("CMD: %s, Args: ", cmd_list->wordArray[0]);
+//         
+//         	for(j = 1; j < cmd_list->length; j++ ){
+//             	printf("%s, \n", cmd_list->wordArray[j]);
+//         	}
+// 
+//         	if(execvp(cmd_list->wordArray[0], cmd_list->wordArray) == -1){
+//             	fprintf(stderr, "Execution failed: CMD: %s, Args: ", cmd_list->wordArray[0]);
+//             	for(j = 1; j < cmd_list->length -1; j++)
+//                 	fprintf(stderr, "%s, ", cmd_list->wordArray[j]);
+//             	fprintf(stderr, "%s\n", cmd_list->wordArray[j]);
+//             	fprintf(stderr, "Child %d exited\n", getpid());
+//             	exit(1);
+//         	}
+//     	}
+//     	else { /* Parent process waits for child to complete */
+//         	wait(NULL);
+// 
+//         	printf("I'm the parent! (PID: %d)\n", getpid());
+//     	}
+//     	cmd_list=cmd_list->next;
+//     	curr_pipe_index += 1;
+//     }
 }
 
 int odd_shell(){
@@ -177,6 +245,14 @@ int odd_shell(){
         for( i = 0; i < pipes_count; i++ ) {
             pipe(pipefdArray[i]);
         }
+        /*while (cursor != NULL){
+            printf("CMD: %s\n", cursor->wordArray[0]);
+            execute_pipes(cursor->wordArray, cursor->length);
+            cursor=cursor->next;
+        }*/
+
+        /* pipes_count-1 gives the number of "|"s in original command*/
+/*        execute_pipes(cursor, pipes_count-1); */
 
         /* todo stdout here */
         childPID = fork();
