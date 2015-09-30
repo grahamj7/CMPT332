@@ -92,7 +92,7 @@ int odd_shell(){
     size_t max_str_length = 128; /* max length of command typed after osh prompt */
     ssize_t nchar_read, length;
     int i, childPID, cmd_index, pipes_count, wordArray_length = 0, max_num_args = 64; /* max number of words types after osh prompt */
-    int **pipefdArray = NULL;
+    int **pipefdArray;
     /* This will be the unchanging first node */
     struct LinkedList *root;
     /* This will point to each node as it traverses the list */
@@ -169,6 +169,13 @@ int odd_shell(){
         }
 
         cursor = root;
+        pipefdArray = malloc(pipes_count * sizeof(int*));
+        for ( i = 0; i < pipes_count; i++) {
+            pipefdArray[i] = malloc(2 * sizeof(int));
+        }
+        /* create pipes */
+        for( i = 0; i < pipes_count; i++ ) {
+            pipe(pipefdArray[i]);
         }
 
         /* todo stdout here */
