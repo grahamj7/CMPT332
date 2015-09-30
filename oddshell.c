@@ -91,7 +91,8 @@ int odd_shell(){
     char **wordArray, **pipesArray;
     size_t max_str_length = 128; /* max length of command typed after osh prompt */
     ssize_t nchar_read, length;
-    int cmd_index, pipes_count, wordArray_length = 0, max_num_args = 64; /* max number of words types after osh prompt */
+    int i, childPID, cmd_index, pipes_count, wordArray_length = 0, max_num_args = 64; /* max number of words types after osh prompt */
+    int **pipefdArray = NULL;
     /* This will be the unchanging first node */
     struct LinkedList *root;
     /* This will point to each node as it traverses the list */
