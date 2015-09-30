@@ -169,10 +169,6 @@ int odd_shell(){
         }
 
         cursor = root;
-        while (cursor != NULL){
-            printf("CMD: %s\n", cursor->wordArray[0]);
-            execute_pipes(cursor->wordArray, cursor->length);
-            cursor=cursor->next;
         }
 
         /* todo stdout here */
