@@ -18,6 +18,41 @@ void delete(struct LinkedList *cursor){
     }
 }
 
+void execute_command_cursor(struct LinkedList *cursor, int pipes_count, int **pipes){
+    int i=0, childPID;
+
+    childPID = fork();
+    if (childPID == -1){
+        fprintf(stderr, "Error in forking.\n");
+        exit(1);
+    } else if (childPID == 0) {
+        printf("(%d) Words: ", getpid());
+        while (cursor->wordArray[i] != 0) {
+            printf("%s, ", cursor->wordArray[i]);
+            i++;
+        }
+        printf("\n");
+        if(execvp(cursor->wordArray[0], cursor->wordArray) == -1){
+            fprintf(stderr, "Execution failed: CMD: %s, Args: ", cursor->wordArray[0]);
+            i = 1;
+            while (cursor->wordArray[i] != 0) {
+                fprintf(stderr, "%s, ", cursor->wordArray[i]);
+                i++;
+            }
+            fprintf(stderr, "Child %d exited\n", getpid());
+            exit(1);
+        }
+    } else {
+        wait(NULL);
+        /* Waits for child to process then calls the next command in line*/
+        if (cursor->next != NULL)
+            execute_command_cursor(cursor->next, pipes_count, pipes);
+
+        /* Returns to above process call */
+        /* Do nothing here */
+    }
+}
+
 void execute_pipes(char **wordArray, int wordArray_length){
     int j, childPID;
 
