@@ -176,12 +176,24 @@ int odd_shell(){
         }
 
         /* todo stdout here */
+        childPID = fork();
+        if ( -1 == childPID ) {
+            fprintf(stderr, "Error in forking.\n");
+            exit(1);
+        } else if (childPID == 0){
+            printf("Main Child (%d)\n", getpid());
+            execute_command_cursor(cursor, pipes_count, pipefdArray);
+            exit(0);
+        } else {
+            wait(NULL);
+            printf("Main (%d)\n", getpid());
+        }
 
 
     	/* Free allocated memory */
     	free (input_str);
 
-        delete(root->next);
+        delete(root);
 
         /* Decrement wordArray_length to the highest index number */
         for( wordArray_length = wordArray_length - 1; wordArray_length > -1; wordArray_length--){
