@@ -3,9 +3,6 @@
 #include "string.h"
 #include "unistd.h"
 
-#define READ_END 0
-#define WRITE_END 1
-
 struct LinkedList{
     char **wordArray;
     int length;
