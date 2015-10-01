@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <sys/wait.h>
 
 
 #define READ_END 0
@@ -215,19 +215,31 @@ int main(int argc, char* argv[]) {
         cursor = root;
         
         /* Set stdout to the file specified */
-        out_file = open( "stdout" , O_WRONLY |O_TRUNC| O_CREAT, S_IRUSR | S_IRGRP | S_IROTH );
-        dup2( out_file, 1 );
-
+        if(1 == should_redirect){
+		out_file = open( file_name , O_WRONLY |O_TRUNC| O_CREAT, S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR | S_IWGRP | S_IWOTH);
+        	dup2( out_file, 1 );
+    	}
         /* Execute the commands saved in the linked list */
         /* pipes_count-1 gives the number of "|"s in original command */
         execute_pipes(cursor, pipes_count-1);
         
         close( out_file );
-
+/*
         stdout_str = malloc(max_str_length * sizeof(char));
-        nchar_read = read(out_file, stdout_str, max_str_length);
-/*        stdout_str = "Hello world I'm cmpt"; */
-        printf("Before: %s\n", stdout_str);
+
+   	char ch, *c;
+      	FILE *fp;
+       
+	fp = fopen("stdout","r"); // read mode
+	
+	position = 0;
+	while( ( ch = fgetc(fp) ) != EOF )
+	        c = &ch;
+		stdout_str = append(stdout_str, c, strlen(stdout_str));
+	fclose(fp);
+
+
+	printf("Before: %s\n", stdout_str);
         for (position = 0; position < strlen(stdout_str); position++)
             switch(stdout_str[position]) {
                 case 'c':
@@ -263,7 +275,7 @@ int main(int argc, char* argv[]) {
         } else {
             printf("%s\n", stdout_str);
         }
-
+*/
     	/* Free allocated memory */
     	//free (input_str);
 
