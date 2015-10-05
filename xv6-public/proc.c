@@ -70,6 +70,12 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  // added ticks to created variable
+  acquire(&tickslock);
+  p->created = ticks;
+  p->running = 0;
+  release(&tickslock);
+
   return p;
 }
 
@@ -191,6 +197,11 @@ exit(void)
   end_op();
   proc->cwd = 0;
 
+  // added ticks to ended variable
+  acquire(&tickslock);
+  proc->ended = ticks;
+  release(&tickslock);
+ 
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().

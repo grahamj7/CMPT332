@@ -7,6 +7,12 @@
 #include "mmu.h"
 #include "proc.h"
 
+//int
+//sys_waits(void)
+//{
+//	return 0;
+//}
+
 int
 sys_fork(void)
 {
