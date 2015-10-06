@@ -444,53 +444,18 @@ sys_pipe(void)
 int
 sys_waitstat(void)
 {
-	int num1, num2;
-	if (argint(0, &num1) < 0 || argint(1, &num2) < 0)
-	{
-		return -1;
-	}
-//int
-//wait(void)
-//{
-//  struct proc *p;
-//  int havekids, pid;
-//  acquire(&ptable.lock);
-//  for(;;){
-
-// Scan through table looking for zombie children.
-//  havekids = 0;
-//  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-//      if(p->parent != proc)
-//        continue;
-//      havekids = 1;
-//      if(p->state == ZOMBIE){
-          // Found one.
-//        pid = p->pid;
-//        kfree(p->kstack);
-//        p->kstack = 0;
-//        freevm(p->pgdir);
-//        p->state = UNUSED;
-//        p->pid = 0;
-//        p->parent = 0;
-//        p->name[0] = 0;
-//        p->killed = 0;
-//        release(&ptable.lock);
-//        return pid;
-//      }
-//    }
-
-       // No point waiting if we don't have any children.
-//     if(!havekids || proc->killed){
-//       release(&ptable.lock);
-//       return -1;
-//     }
-
-     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
-//   sleep(proc, &ptable.lock);  //DOC: wait-sleep
-//   }
-// }
-//
-	return 0;
+  wait();
+ 
+  int num1, num2;
+  if (argint(0, &num1) < 0 || argint(1, &num2) < 0)
+  {
+    return -1;
+  }
+  cprintf("WS: Received Numbers: %d, %d\nAttempt to change Num1 and Num2\n", num1, num2);
+  num1=5;
+  num2=7;
+  cprintf("WS: Changed Numbers to: %d, %d\n", num1, num2);
+  return 0;
 }
 
 

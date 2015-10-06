@@ -58,7 +58,7 @@ trap(struct trapframe *tf)
     // Added random shit that we really hope works and doesn't fuck us over!!!
     if (proc != 0){
       proc->running = proc->running + 1;
-      cprintf("Proc->running: %d\n", proc->running);
+      //cprintf("Proc->running: %p, count: %d\n", proc, proc->running);
     }
     lapiceoi();
     break;
