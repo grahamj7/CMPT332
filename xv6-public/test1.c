@@ -21,8 +21,8 @@ main (int argc, char *argv[]){
     printf(1, "isChild (%d)\n", getpid());
   }
   else { // parent
-    //waitstat((int*)num1, (int*)num2);
-    waitstat(num1, num2);
+    printf(1, "Nums before waitstat: %d, %d\n", num1, num2);
+    waitstat(&num1, &num2);
     printf(1, "Nums After: %d, %d\n", num1, num2);
     printf(1, "isParent (%d)\nWAIT\n", getpid());
   }

@@ -446,16 +446,16 @@ sys_waitstat(void)
 {
   wait();
  
-  int num1, num2;
-  if (argint(0, &num1) < 0 || argint(1, &num2) < 0)
-  {
+  int *trn_arnd_time, *run_time;
+  
+  if(argptr(0, (void*)&trn_arnd_time, sizeof(int*)) < 0 || argptr(1, (void*)&run_time, sizeof(int*)) < 0){
     return -1;
-  }
-  cprintf("WS: Received Numbers: %d, %d\nAttempt to change Num1 and Num2\n", num1, num2);
-  num1=5;
-  num2=7;
-  cprintf("WS: Changed Numbers to: %d, %d\n", num1, num2);
-  return 0;
+   }
+  cprintf("WS: Received Addresses: %d, %d, Values: %d, %d.\n", trn_arnd_time, run_time, *trn_arnd_time, *run_time);
+  *trn_arnd_time = 5;
+  *run_time = 7;
+  cprintf("WS: Changed Values to: %d, %d\n", *trn_arnd_time, *run_time);
+  return 0; 
 }
 
 
