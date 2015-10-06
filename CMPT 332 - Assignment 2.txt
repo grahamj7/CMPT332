@@ -1,0 +1,26 @@
+CMPT 332 - Assignment 2 
+jhg257 - Jordaen Graham
+jlr247 - Jennifer Rospad
+
+files editted: proc.h, proc.c, sysfile.c, syscall.c, syscall.h, user.h, usys.S, Makefile, test1.c
+
+added uint created, ended, running; to proc in proc.h;
+in proc.c allocproc(), added p->created = ticks   	added code at L73-76
+in proc.c exit(), added p->ended = ticks			added code at L199-202
+
+added created, ended, running to struct proc in proc.h
+added p->created p->ended to allocproc and exit in proc.c
+added p->running to trap in trap.c L58-60
+
+added waitstat -> syscall.c syscall.h, user.h, usys.S
+added waitstat(int*,int*) to sysfile.c
+created file test1.c
+added _test1/ to Makefile UPROGS
+
+
+
+waitstat(int *, int *) is located at the end of sysfile.c
+
+
+
+
