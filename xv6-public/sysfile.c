@@ -487,7 +487,6 @@ sys_waitstat(void)
   }
   
   /* Turn around time: ended-created time in ticks */
-  cprintf("PID: %d time created: %d, time ended %d.\n", child->pid, child->created, child->ended);
   *trn_arnd_time = (child->ended) - (child->created);
   /* Runtime is the num of ticks spent on this proc */
   *run_time = child->running;
