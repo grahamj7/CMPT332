@@ -73,6 +73,7 @@ found:
   // added ticks to created variable
   acquire(&tickslock);
   p->created = ticks;
+  p->ended = -1;
   p->running = 0;
   release(&tickslock);
 

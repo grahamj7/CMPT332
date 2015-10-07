@@ -14,6 +14,13 @@
 #include "file.h"
 #include "fcntl.h"
 
+#include "spinlock.h"
+
+struct {
+  struct spinlock lock;
+  struct proc proc[NPROC];
+} ptable;
+
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int
@@ -444,19 +451,48 @@ sys_pipe(void)
 int
 sys_waitstat(void)
 {
+
+  struct proc *child;
+  int havekids, *trn_arnd_time, *run_time;
+
+  /* Find child process we are waiting on */
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for children.
+    havekids = 0;
+    for(child = ptable.proc; child < &ptable.proc[NPROC]; child++){
+      if(child->parent == proc){
+        havekids = 1;
+        break;
+      }
+    }
+
+    if( 1 == havekids){
+      release(&ptable.lock);
+      break;
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || proc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+  }
+    
+  /* Wait for child process to finish */
   wait();
- 
-  int *trn_arnd_time, *run_time;
   
   if(argptr(0, (void*)&trn_arnd_time, sizeof(int*)) < 0 || argptr(1, (void*)&run_time, sizeof(int*)) < 0){
     return -1;
-   }
-  cprintf("WS: Received Addresses: %d, %d, Values: %d, %d.\n", trn_arnd_time, run_time, *trn_arnd_time, *run_time);
-  *trn_arnd_time = 5;
-  *run_time = 7;
-  cprintf("WS: Changed Values to: %d, %d\n", *trn_arnd_time, *run_time);
+  }
+  
+  /* Turn around time: ended-created time in ticks */
+  cprintf("PID: %d time created: %d, time ended %d.\n", child->pid, child->created, child->ended);
+  *trn_arnd_time = (child->ended) - (child->created);
+  /* Runtime is the num of ticks spent on this proc */
+  *run_time = child->running;
+  
   return 0; 
 }
-
 
 
