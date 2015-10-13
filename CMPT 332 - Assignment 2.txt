@@ -2,7 +2,10 @@ CMPT 332 - Assignment 2
 jhg257 - Jordaen Graham
 jlr247 - Jennifer Rospad
 
+==== *** QUESTION 2 *** ====
 
+
+==== *** Things already changed for QUESTION 1: *** ====
 
 
 files edited: proc.h, proc.c, sysfile.c, syscall.c, syscall.h, user.h, usys.S, Makefile, test1.c
