@@ -10,6 +10,8 @@ added definitions for HIGH, MED, LOW priority (L 4-7) and priority, prevproc, ne
 	and t_run_med (L77-80) to proc.h
 added high priority setting when allocating new proc in proc.c (L57)
 added pointers to priority heads and tails in proc.c (L23-29)
+added a call to addtolist() any time a proc has its' state changed to RUNNABLE in proc.c
+added addtolist() function in proc.c
 
 
 

@@ -21,12 +21,12 @@ extern void trapret(void);
 static void wakeup1(void *chan);
 
 /* Pointers to heads and tails of priority lists */
-struct proc *highhead = null;
-struct proc *medhead = null;
-struct proc *lowhead = null;
-struct proc *hightail = null;
-struct proc *medproc = null;
-struct proc *lowproc = null;
+struct proc *highhead = 0;
+struct proc *medhead = 0;
+struct proc *lowhead = 0;
+struct proc *hightail = 0;
+struct proc *medtail = 0;
+struct proc *lowtail = 0;
 
 void
 pinit(void)
@@ -116,6 +116,7 @@ userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
+  addtolist(p);
 }
 
 // Grow current process's memory by n bytes.
@@ -177,6 +178,7 @@ fork(void)
   // lock to force the compiler to emit the np->state write last.
   acquire(&ptable.lock);
   np->state = RUNNABLE;
+	addtolist(np);
   release(&ptable.lock);
   
   return pid;
@@ -317,7 +319,7 @@ scheduler(void)
     }
     release(&ptable.lock);
 
-  } */
+  }*/
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -346,6 +348,7 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
+  addtolist(p);
   sched();
   release(&ptable.lock);
 }
@@ -419,6 +422,7 @@ wakeup1(void *chan)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan)
       p->state = RUNNABLE;
+      addtolist(p);
 }
 
 // Wake up all processes sleeping on chan.
@@ -445,6 +449,7 @@ kill(int pid)
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING)
         p->state = RUNNABLE;
+        addtolist(p);
       release(&ptable.lock);
       return 0;
     }
@@ -488,4 +493,38 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+// Adds a process to the appropriate queue of high, med, or low priority
+void addtolist(struct proc *p){
+	if( p->priority == HIGH ){
+		if( 0 == hightail ){ //case of empty high priority list
+			hightail = p;
+			highhead = p;
+		} else {
+			hightail->nextproc = p;
+			p->prevproc = hightail;
+			hightail = p;
+		}
+	}
+	if( p->priority == MED ){
+		if( 0 == medtail ){ //case of empty high priority list
+			medtail = p;
+			medhead = p;
+		} else {
+			medtail->nextproc = p;
+			p->prevproc = medtail;
+			medtail = p;
+		}
+	}
+	if( p->priority == LOW ){
+		if( 0 == lowtail ){ //case of empty high priority list
+			lowtail = p;
+			lowhead = p;
+		} else {
+			lowtail->nextproc = p;
+			p->prevproc = lowtail;
+			lowtail = p;
+		}
+	}
 }
