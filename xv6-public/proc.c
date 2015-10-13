@@ -20,6 +20,14 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+/* Pointers to heads and tails of priority lists */
+struct proc *highhead = null;
+struct proc *medhead = null;
+struct proc *lowhead = null;
+struct proc *hightail = null;
+struct proc *medproc = null;
+struct proc *lowproc = null;
+
 void
 pinit(void)
 {
@@ -46,6 +54,7 @@ allocproc(void)
 
 found:
   p->state = EMBRYO;
+  p->priority = HIGH;
   p->pid = nextpid++;
   release(&ptable.lock);
 
@@ -277,6 +286,10 @@ wait(void)
 void
 scheduler(void)
 {
+  
+  
+  
+  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference):
   struct proc *p;
 
   for(;;){
@@ -304,7 +317,7 @@ scheduler(void)
     }
     release(&ptable.lock);
 
-  }
+  } */
 }
 
 // Enter scheduler.  Must hold only ptable.lock
