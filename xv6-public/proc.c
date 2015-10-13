@@ -19,6 +19,7 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
+void addtolist(struct proc*);
 
 /* Pointers to heads and tails of priority lists */
 struct proc *highhead = 0;
@@ -291,7 +292,7 @@ scheduler(void)
   
   
   
-  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference):
+  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference):*/
   struct proc *p;
 
   for(;;){
@@ -319,7 +320,7 @@ scheduler(void)
     }
     release(&ptable.lock);
 
-  }*/
+  }
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -348,7 +349,7 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
-  addtolist(p);
+  addtolist(proc);
   sched();
   release(&ptable.lock);
 }
@@ -508,17 +509,23 @@ void addtolist(struct proc *p){
 		}
 	}
 	if( p->priority == MED ){
-		if( 0 == medtail ){ //case of empty high priority list
-			medtail = p;
-			medhead = p;
-		} else {
-			medtail->nextproc = p;
-			p->prevproc = medtail;
-			medtail = p;
-		}
+	    if( p->t_med_run == mtimes ){
+	        p->priority = LOW;
+	    }
+		else {
+      if( 0 == medtail ){ //case of empty med priority list
+        medtail = p;
+			  medhead = p;
+		  } else {
+			  medtail->nextproc = p;
+			  p->prevproc = medtail;
+			  medtail = p;
+		  }
+		  p->t_med_run = p->t_med_run + 1;
+    }
 	}
 	if( p->priority == LOW ){
-		if( 0 == lowtail ){ //case of empty high priority list
+		if( 0 == lowtail ){ //case of empty low priority list
 			lowtail = p;
 			lowhead = p;
 		} else {
