@@ -55,7 +55,7 @@ allocproc(void)
 
 found:
   p->state = EMBRYO;
-  p->priority = HIGH;
+  p->priority = HIGH; // Set priority of new proc to HIGH
   p->pid = nextpid++;
   release(&ptable.lock);
 
@@ -289,10 +289,54 @@ wait(void)
 void
 scheduler(void)
 {
+  struct proc *p;
+  
+  for(;;){
+    // Enable interrupts on this processor.
+    sti();
+    
+    // Go through priority lists looking for processes to run.
+    acquire(&ptable.lock);
+    if( 0 != highhead ){
+      p = highhead;
+      highhead = highhead->nextproc;
+      p->priority = MED;
+      p->t_med_run = 0;
+      
+      proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+      swtch(&cpu->scheduler, proc->context);
+      switchkvm();
+      proc = 0;
+    }
+    else if( 0!= medhead ){
+      p = medhead;
+      medhead = medhead->nextproc;
+      
+      proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+      swtch(&cpu->scheduler, proc->context);
+      switchkvm();
+      proc = 0;
+    }
+    else if ( 0 != lowhead ){
+      p = lowhead;
+      lowhead = lowhead->nextproc;
+      
+      proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+      swtch(&cpu->scheduler, proc->context);
+      switchkvm();
+      proc = 0;
+    }
+    release(&ptable.lock);
+  }
   
   
-  
-  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference):*/
+  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference):
   struct proc *p;
 
   for(;;){
@@ -320,7 +364,7 @@ scheduler(void)
     }
     release(&ptable.lock);
 
-  }
+  }*/
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -421,9 +465,10 @@ wakeup1(void *chan)
   struct proc *p;
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if(p->state == SLEEPING && p->chan == chan)
+    if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
       addtolist(p);
+    }
 }
 
 // Wake up all processes sleeping on chan.
@@ -448,9 +493,10 @@ kill(int pid)
     if(p->pid == pid){
       p->killed = 1;
       // Wake process from sleep if necessary.
-      if(p->state == SLEEPING)
+      if(p->state == SLEEPING){
         p->state = RUNNABLE;
         addtolist(p);
+      }
       release(&ptable.lock);
       return 0;
     }
@@ -499,6 +545,7 @@ procdump(void)
 // Adds a process to the appropriate queue of high, med, or low priority
 void addtolist(struct proc *p){
 	if( p->priority == HIGH ){
+	  //cprintf("Added %s (pid: %d) to high priority list\n", p->name, p->pid);
 		if( 0 == hightail ){ //case of empty high priority list
 			hightail = p;
 			highhead = p;
@@ -507,11 +554,13 @@ void addtolist(struct proc *p){
 			p->prevproc = hightail;
 			hightail = p;
 		}
+		hightail->nextproc = 0;
 	}
 	if( p->priority == MED ){
-	    if( p->t_med_run == mtimes ){
-	        p->priority = LOW;
-	    }
+	  //cprintf("Added %s to med priority list\n", p->name);
+    if( p->t_med_run == mtimes ){
+      p->priority = LOW;
+    }
 		else {
       if( 0 == medtail ){ //case of empty med priority list
         medtail = p;
@@ -522,9 +571,11 @@ void addtolist(struct proc *p){
 			  medtail = p;
 		  }
 		  p->t_med_run = p->t_med_run + 1;
+		  medtail->nextproc = 0;
     }
 	}
 	if( p->priority == LOW ){
+		//cprintf("Added %s to low priority list\n", p->name);
 		if( 0 == lowtail ){ //case of empty low priority list
 			lowtail = p;
 			lowhead = p;
@@ -533,5 +584,6 @@ void addtolist(struct proc *p){
 			p->prevproc = lowtail;
 			lowtail = p;
 		}
+		lowtail->nextproc = 0;
 	}
 }
