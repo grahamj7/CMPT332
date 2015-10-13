@@ -290,41 +290,33 @@ void
 scheduler(void)
 {
   struct proc *p;
+  int foundproc;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
+    
+    foundproc = 0;
     
     // Go through priority lists looking for processes to run.
     acquire(&ptable.lock);
     if( 0 != highhead ){
       p = highhead;
       highhead = highhead->nextproc;
-      p->priority = MED;
-      p->t_med_run = 0;
-      
-      proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      swtch(&cpu->scheduler, proc->context);
-      switchkvm();
-      proc = 0;
+      foundproc = 1;
     }
     else if( 0!= medhead ){
       p = medhead;
       medhead = medhead->nextproc;
-      
-      proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      swtch(&cpu->scheduler, proc->context);
-      switchkvm();
-      proc = 0;
+      foundproc = 1;
     }
     else if ( 0 != lowhead ){
       p = lowhead;
       lowhead = lowhead->nextproc;
-      
+      foundproc = 1;
+    }
+    
+    if (1 == foundproc) {
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
@@ -332,6 +324,7 @@ scheduler(void)
       switchkvm();
       proc = 0;
     }
+    
     release(&ptable.lock);
   }
   
@@ -554,6 +547,9 @@ void addtolist(struct proc *p){
 			p->prevproc = hightail;
 			hightail = p;
 		}
+		// Update proc to be medium priority next time
+		p->priority = MED;
+		p->t_med_run = 0;
 		hightail->nextproc = 0;
 	}
 	if( p->priority == MED ){
