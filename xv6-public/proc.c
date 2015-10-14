@@ -10,6 +10,13 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  
+  struct proc *highhead;
+  struct proc *medhead;
+  struct proc *lowhead;
+  struct proc *hightail;
+  struct proc *medtail;
+  struct proc *lowtail;
 } ptable;
 
 static struct proc *initproc;
@@ -21,18 +28,17 @@ extern void trapret(void);
 static void wakeup1(void *chan);
 void addtolist(struct proc*);
 
-/* Pointers to heads and tails of priority lists */
-struct proc *highhead = 0;
-struct proc *medhead = 0;
-struct proc *lowhead = 0;
-struct proc *hightail = 0;
-struct proc *medtail = 0;
-struct proc *lowtail = 0;
-
 void
 pinit(void)
 {
+  cprintf("Entering pinit.\n");
   initlock(&ptable.lock, "ptable");
+  ptable.highhead = 0;
+  ptable.medhead = 0;
+  ptable.lowhead = 0;
+  ptable.hightail = 0;
+  ptable.medtail = 0;
+  ptable.lowtail = 0;
 }
 
 //PAGEBREAK: 32
@@ -43,6 +49,7 @@ pinit(void)
 static struct proc*
 allocproc(void)
 {
+  cprintf("Entering allocproc.\n");
   struct proc *p;
   char *sp;
 
@@ -95,6 +102,7 @@ found:
 void
 userinit(void)
 {
+  cprintf("Entering userinit.\n");
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
   
@@ -117,7 +125,9 @@ userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
+  acquire(&ptable.lock);
   addtolist(p);
+  release(&ptable.lock);
 }
 
 // Grow current process's memory by n bytes.
@@ -125,6 +135,7 @@ userinit(void)
 int
 growproc(int n)
 {
+  cprintf("Entering growproc.\n");
   uint sz;
   
   sz = proc->sz;
@@ -146,6 +157,7 @@ growproc(int n)
 int
 fork(void)
 {
+  cprintf("Entering fork.\n");
   int i, pid;
   struct proc *np;
 
@@ -191,6 +203,7 @@ fork(void)
 void
 exit(void)
 {
+  cprintf("Entering exit.\n");
   struct proc *p;
   int fd;
 
@@ -240,6 +253,7 @@ exit(void)
 int
 wait(void)
 {
+  cprintf("Entering wait.\n");
   struct proc *p;
   int havekids, pid;
 
@@ -289,6 +303,7 @@ wait(void)
 void
 scheduler(void)
 {
+  cprintf("Entering scheduler.\n");
   struct proc *p;
   int foundproc;
   
@@ -300,19 +315,19 @@ scheduler(void)
     
     // Go through priority lists looking for processes to run.
     acquire(&ptable.lock);
-    if( 0 != highhead ){
-      p = highhead;
-      highhead = highhead->nextproc;
+    if( 0 != ptable.highhead ){
+      p = ptable.highhead;
+      ptable.highhead = ptable.highhead->nextproc;
       foundproc = 1;
     }
-    else if( 0!= medhead ){
-      p = medhead;
-      medhead = medhead->nextproc;
+    else if( 0!= ptable.medhead ){
+      p = ptable.medhead;
+      ptable.medhead = ptable.medhead->nextproc;
       foundproc = 1;
     }
-    else if ( 0 != lowhead ){
-      p = lowhead;
-      lowhead = lowhead->nextproc;
+    else if ( 0 != ptable.lowhead ){
+      p = ptable.lowhead;
+      ptable.lowhead = ptable.lowhead->nextproc;
       foundproc = 1;
     }
     
@@ -323,6 +338,9 @@ scheduler(void)
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
       proc = 0;
+      if( p->state == RUNNABLE ){
+        addtolist(p);
+      }
     }
     
     release(&ptable.lock);
@@ -365,6 +383,7 @@ scheduler(void)
 void
 sched(void)
 {
+  cprintf("Entering sched.\n");
   int intena;
 
   if(!holding(&ptable.lock))
@@ -384,6 +403,7 @@ sched(void)
 void
 yield(void)
 {
+  cprintf("Entering yield.\n");
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
   addtolist(proc);
@@ -396,6 +416,7 @@ yield(void)
 void
 forkret(void)
 {
+  cprintf("Entering forkret.\n");
   static int first = 1;
   // Still holding ptable.lock from scheduler.
   release(&ptable.lock);
@@ -417,6 +438,7 @@ forkret(void)
 void
 sleep(void *chan, struct spinlock *lk)
 {
+  cprintf("Entering sleep.\n");
   if(proc == 0)
     panic("sleep");
 
@@ -455,6 +477,7 @@ sleep(void *chan, struct spinlock *lk)
 static void
 wakeup1(void *chan)
 {
+  cprintf("Entering wakeup1.\n");
   struct proc *p;
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -468,6 +491,7 @@ wakeup1(void *chan)
 void
 wakeup(void *chan)
 {
+  cprintf("Entering wakeup.\n");
   acquire(&ptable.lock);
   wakeup1(chan);
   release(&ptable.lock);
@@ -479,6 +503,7 @@ wakeup(void *chan)
 int
 kill(int pid)
 {
+  cprintf("Entering kill.\n");
   struct proc *p;
 
   acquire(&ptable.lock);
@@ -505,6 +530,7 @@ kill(int pid)
 void
 procdump(void)
 {
+  cprintf("Entering procdump.\n");
   static char *states[] = {
   [UNUSED]    "unused",
   [EMBRYO]    "embryo",
@@ -537,20 +563,21 @@ procdump(void)
 
 // Adds a process to the appropriate queue of high, med, or low priority
 void addtolist(struct proc *p){
+  cprintf("Entering addtolist (proc: %s).\n", p->name);
 	if( p->priority == HIGH ){
 	  //cprintf("Added %s (pid: %d) to high priority list\n", p->name, p->pid);
-		if( 0 == hightail ){ //case of empty high priority list
-			hightail = p;
-			highhead = p;
+		if( 0 == ptable.hightail ){ //case of empty high priority list
+			ptable.hightail = p;
+			ptable.highhead = p;
 		} else {
-			hightail->nextproc = p;
-			p->prevproc = hightail;
-			hightail = p;
+			ptable.hightail->nextproc = p;
+			p->prevproc = ptable.hightail;
+			ptable.hightail = p;
 		}
 		// Update proc to be medium priority next time
 		p->priority = MED;
 		p->t_med_run = 0;
-		hightail->nextproc = 0;
+		ptable.hightail->nextproc = 0;
 	}
 	if( p->priority == MED ){
 	  //cprintf("Added %s to med priority list\n", p->name);
@@ -558,28 +585,28 @@ void addtolist(struct proc *p){
       p->priority = LOW;
     }
 		else {
-      if( 0 == medtail ){ //case of empty med priority list
-        medtail = p;
-			  medhead = p;
+      if( 0 == ptable.medtail ){ //case of empty med priority list
+        ptable.medtail = p;
+			  ptable.medhead = p;
 		  } else {
-			  medtail->nextproc = p;
-			  p->prevproc = medtail;
-			  medtail = p;
+			  ptable.medtail->nextproc = p;
+			  p->prevproc = ptable.medtail;
+			  ptable.medtail = p;
 		  }
 		  p->t_med_run = p->t_med_run + 1;
-		  medtail->nextproc = 0;
+		  ptable.medtail->nextproc = 0;
     }
 	}
 	if( p->priority == LOW ){
 		//cprintf("Added %s to low priority list\n", p->name);
-		if( 0 == lowtail ){ //case of empty low priority list
-			lowtail = p;
-			lowhead = p;
+		if( 0 == ptable.lowtail ){ //case of empty low priority list
+			ptable.lowtail = p;
+			ptable.lowhead = p;
 		} else {
-			lowtail->nextproc = p;
-			p->prevproc = lowtail;
-			lowtail = p;
+			ptable.lowtail->nextproc = p;
+			p->prevproc = ptable.lowtail;
+			ptable.lowtail = p;
 		}
-		lowtail->nextproc = 0;
+		ptable.lowtail->nextproc = 0;
 	}
 }
