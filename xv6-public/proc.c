@@ -10,7 +10,8 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
-  
+
+// go fuck yourself you bastard
   struct proc *highhead;
   struct proc *medhead;
   struct proc *lowhead;
@@ -31,7 +32,7 @@ void addtolist(struct proc*);
 void
 pinit(void)
 {
-  cprintf("Entering pinit.\n");
+//  cprintf("Entering pinit.\n");
   initlock(&ptable.lock, "ptable");
   ptable.highhead = 0;
   ptable.medhead = 0;
@@ -49,7 +50,7 @@ pinit(void)
 static struct proc*
 allocproc(void)
 {
-  cprintf("Entering allocproc.\n");
+//  cprintf("Entering allocproc.\n");
   struct proc *p;
   char *sp;
 
@@ -102,7 +103,7 @@ found:
 void
 userinit(void)
 {
-  cprintf("Entering userinit.\n");
+//  cprintf("Entering userinit.\n");
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
   
@@ -125,9 +126,12 @@ userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
+  
   acquire(&ptable.lock);
+//  cprintf("userinit add to list\n");
   addtolist(p);
   release(&ptable.lock);
+
 }
 
 // Grow current process's memory by n bytes.
@@ -135,7 +139,7 @@ userinit(void)
 int
 growproc(int n)
 {
-  cprintf("Entering growproc.\n");
+//  cprintf("Entering growproc.\n");
   uint sz;
   
   sz = proc->sz;
@@ -157,7 +161,7 @@ growproc(int n)
 int
 fork(void)
 {
-  cprintf("Entering fork.\n");
+//  cprintf("Entering fork.\n");
   int i, pid;
   struct proc *np;
 
@@ -191,6 +195,7 @@ fork(void)
   // lock to force the compiler to emit the np->state write last.
   acquire(&ptable.lock);
   np->state = RUNNABLE;
+//  cprintf("fork add to list\n");
 	addtolist(np);
   release(&ptable.lock);
   
@@ -203,7 +208,7 @@ fork(void)
 void
 exit(void)
 {
-  cprintf("Entering exit.\n");
+//  cprintf("Entering exit.\n");
   struct proc *p;
   int fd;
 
@@ -253,7 +258,7 @@ exit(void)
 int
 wait(void)
 {
-  cprintf("Entering wait.\n");
+//  cprintf("Entering wait.\n");
   struct proc *p;
   int havekids, pid;
 
@@ -303,7 +308,7 @@ wait(void)
 void
 scheduler(void)
 {
-  cprintf("Entering scheduler.\n");
+//  cprintf("Entering scheduler.\n");
   struct proc *p;
   int foundproc;
   
@@ -340,9 +345,10 @@ scheduler(void)
       proc = 0;
       if( p->state == RUNNABLE ){
         addtolist(p);
+//        cprintf("scheduler add to list\n");
       }
     }
-    
+
     release(&ptable.lock);
   }
   
@@ -383,7 +389,7 @@ scheduler(void)
 void
 sched(void)
 {
-  cprintf("Entering sched.\n");
+//  cprintf("Entering sched.\n");
   int intena;
 
   if(!holding(&ptable.lock))
@@ -403,10 +409,11 @@ sched(void)
 void
 yield(void)
 {
-  cprintf("Entering yield.\n");
+//  cprintf("Entering yield.\n");
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
   addtolist(proc);
+//  cprintf("yield add to list\n");
   sched();
   release(&ptable.lock);
 }
@@ -416,7 +423,7 @@ yield(void)
 void
 forkret(void)
 {
-  cprintf("Entering forkret.\n");
+//  cprintf("Entering forkret.\n");
   static int first = 1;
   // Still holding ptable.lock from scheduler.
   release(&ptable.lock);
@@ -438,7 +445,7 @@ forkret(void)
 void
 sleep(void *chan, struct spinlock *lk)
 {
-  cprintf("Entering sleep.\n");
+//  cprintf("Entering sleep.\n");
   if(proc == 0)
     panic("sleep");
 
@@ -477,13 +484,14 @@ sleep(void *chan, struct spinlock *lk)
 static void
 wakeup1(void *chan)
 {
-  cprintf("Entering wakeup1.\n");
+//  cprintf("Entering wakeup1.\n");
   struct proc *p;
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
       addtolist(p);
+
     }
 }
 
@@ -491,7 +499,7 @@ wakeup1(void *chan)
 void
 wakeup(void *chan)
 {
-  cprintf("Entering wakeup.\n");
+//  cprintf("Entering wakeup.\n");
   acquire(&ptable.lock);
   wakeup1(chan);
   release(&ptable.lock);
@@ -503,7 +511,7 @@ wakeup(void *chan)
 int
 kill(int pid)
 {
-  cprintf("Entering kill.\n");
+//  cprintf("Entering kill.\n");
   struct proc *p;
 
   acquire(&ptable.lock);
@@ -514,6 +522,7 @@ kill(int pid)
       if(p->state == SLEEPING){
         p->state = RUNNABLE;
         addtolist(p);
+//        cprintf("kill add to list\n");
       }
       release(&ptable.lock);
       return 0;
@@ -530,7 +539,7 @@ kill(int pid)
 void
 procdump(void)
 {
-  cprintf("Entering procdump.\n");
+//  cprintf("Entering procdump.\n");
   static char *states[] = {
   [UNUSED]    "unused",
   [EMBRYO]    "embryo",
@@ -563,14 +572,14 @@ procdump(void)
 
 // Adds a process to the appropriate queue of high, med, or low priority
 void addtolist(struct proc *p){
-  cprintf("Entering addtolist (proc: %s).\n", p->name);
-	if( p->priority == HIGH ){
-	  //cprintf("Added %s (pid: %d) to high priority list\n", p->name, p->pid);
-		if( 0 == ptable.hightail ){ //case of empty high priority list
-			ptable.hightail = p;
-			ptable.highhead = p;
-		} else {
-			ptable.hightail->nextproc = p;
+//  cprintf("Entering addtolist (proc: %s).\n", p->name);
+  if( p->priority == HIGH ){
+//    cprintf("Added %s (pid: %d) to high priority list\n", p->name, p->pid);
+    if( 0 == ptable.highhead ){ //case of empty high priority list
+	    ptable.hightail = p;
+	    ptable.highhead = p;
+	  } else {
+	    ptable.hightail->nextproc = p;
 			p->prevproc = ptable.hightail;
 			ptable.hightail = p;
 		}
@@ -579,16 +588,19 @@ void addtolist(struct proc *p){
 		p->t_med_run = 0;
 		ptable.hightail->nextproc = 0;
 	}
-	if( p->priority == MED ){
-	  //cprintf("Added %s to med priority list\n", p->name);
+	else if( p->priority == MED ){
+	  
     if( p->t_med_run == mtimes ){
       p->priority = LOW;
     }
 		else {
-      if( 0 == ptable.medtail ){ //case of empty med priority list
+//      cprintf("Added %s to med priority list, ran: %d times of %d\n", p->name, p->t_med_run, mtimes);
+      if( 0 == ptable.medhead ){ //case of empty med priority list
+//        cprintf ("med is empty\n");
         ptable.medtail = p;
 			  ptable.medhead = p;
 		  } else {
+//        cprintf ("med has processes\n");
 			  ptable.medtail->nextproc = p;
 			  p->prevproc = ptable.medtail;
 			  ptable.medtail = p;
@@ -598,8 +610,8 @@ void addtolist(struct proc *p){
     }
 	}
 	if( p->priority == LOW ){
-		//cprintf("Added %s to low priority list\n", p->name);
-		if( 0 == ptable.lowtail ){ //case of empty low priority list
+//		cprintf("Added %s to low priority list\n", p->name);
+		if( 0 == ptable.lowhead ){ //case of empty low priority list
 			ptable.lowtail = p;
 			ptable.lowhead = p;
 		} else {
@@ -609,4 +621,25 @@ void addtolist(struct proc *p){
 		}
 		ptable.lowtail->nextproc = 0;
 	}
+
+/*
+    struct proc* h_cursor = ptable.highhead;
+    struct proc* m_cursor = ptable.medhead;
+    struct proc* l_cursor = ptable.lowhead;
+    cprintf("High queue\n");
+    while(h_cursor != 0){
+      cprintf("proc: %s\n", h_cursor->name);
+      h_cursor = h_cursor->nextproc;    
+    }
+    cprintf("Med queue\n");
+    while(m_cursor != 0){
+      cprintf("proc: %s\n", m_cursor->name);
+      m_cursor = m_cursor->nextproc;    
+    }
+    cprintf("Low queue\n");
+    while(l_cursor != 0){
+      cprintf("proc: %s\n", l_cursor->name);
+      l_cursor = l_cursor->nextproc;    
+    }
+*/
 }
