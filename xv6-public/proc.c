@@ -11,7 +11,6 @@ struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 
-// go fuck yourself you bastard
   struct proc *highhead;
   struct proc *medhead;
   struct proc *lowhead;
