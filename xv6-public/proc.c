@@ -17,6 +17,7 @@ struct {
   struct proc *hightail;
   struct proc *medtail;
   struct proc *lowtail;
+  
 } ptable;
 
 static struct proc *initproc;
