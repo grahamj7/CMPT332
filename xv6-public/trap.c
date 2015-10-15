@@ -57,8 +57,8 @@ trap(struct trapframe *tf)
     
     if (proc != 0){
       proc->running = proc->running + 1;
-      //cprintf("Proc->running: %p, count: %d\n", proc, proc->running);
     }
+    
     lapiceoi();
     break;
   case T_IRQ0 + IRQ_IDE:
