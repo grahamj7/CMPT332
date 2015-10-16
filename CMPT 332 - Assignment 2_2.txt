@@ -36,8 +36,8 @@ What is working:
   xv6 will run as required in the qemu emulator.
 
 Known issues:
-  When a process is forked, the new process starts running through the
-  queues before exec is called. So, for example, if we do the ls command,
+  When a process is forked, the new process starts moving through the
+  queues before exec runs. So, for example, if we do the ls command,
   sh forks. The new sh proc starts running through high, medium, and low
   queues before the sh command is turned into an ls command using exec. So,
   by the time the actual ls command starts running, it will no longer be in
@@ -46,272 +46,11 @@ Known issues:
 
 
 ======================== 
-Test output (NOTICE DIFFERENT SUCCESS OR ERROR MESSAGES - NO PATTERN)
+Test output
 
-$ test1 40
-The sum of the 1th sum of the 1th child is = 5.7
-The sum of the 2th sum of the 1th child is = 6.0
-The sum of the 3th sum of the 1th child is = 6.2
-The sum of the 4th sum of the 1th child is = 6.2
-The sum of the 5th sum of the 1th child is = 6.3
-The sum of the 6th sum of the 1th child is = 6.3
-The sum of the 7th sum of the 1th child is = 6.4
-The sum of the 8th sum of the 1th child is = 6.4
-The sum of the 9th sum of the 1th child is = 6.4
-The sum of the 10th sum of the 1th child is = 6.4
-The 1th sum of the parent is = 0.0
-
-The sum of the 1th sum of the 2th child is = 5.6
-The sum of the 2th sum of the 2th child is = 6.0
-The sum of the 3th sum of the 2th child is = 6.1
-The sum of the 4th sum of the 2th child is = 6.2
-The sum of the 5th sum of the 2th child is = 6.2
-The sum of the 6th sum of the 2th child is = 6.3
-The sum of the 7th sum of the 2th child is = 6.3
-The sum of the 8th sum of the 2th child is = 6.3
-The sum of the 9th sum of the 2th child is = 6.3
-The sum of the 10th sum of the 2th child is = 6.4
-The 2th sum of the parent is = 4.4
-
-The sum of the 1th sum of the 3th child is = 5.6
-The sum of the 2th sum of the 3th child is = 5.9
-The sum of the 3th sum of the 3th child is = 6.1
-The sum of the 4th sum of the 3th child is = 6.2
-The sum of the 5th sum of the 3th child is = 6.2
-The sum of the 6th sum of the 3th child is = 6.2
-The sum of the 7th sum of the 3th child is = 6.3
-The sum of the 8th sum of the 3th child is = 6.3
-The sum of the 9th sum of the 3th child is = 6.3
-The sum of the 10th sum of the 3th child is = 6.3
-The 3th sum of the parent is = 4.7
-
-The sum of the 1th sum of the 4th child is = 5.6
-The sum of the 2th sum of the 4th child is = 5.9
-The sum of the 3th sum of the 4th child is = 6.0
-The sum of the 4th sum of the 4th child is = 6.1
-The sum of the 5th sum of the 4th child is = 6.2
-The sum of the 6th sum of the 4th child is = 6.2
-The sum of the 7th sum of the 4th child is = 6.2
-The sum of the 8th sum of the 4th child is = 6.2
-The sum of the 9th sum of the 4th child is = 6.3
-The sum of the 10th sum of the 4th child is = 6.3
-The 4th sum of the parent is = 4.9
-
-The sum of the 1th sum of the 5th child is = 5.5
-The sum of the 2th sum of the 5th child is = 5.8
-The sum of the 3th sum of the 5th child is = 6.0
-The sum of the 4th sum of the 5th child is = 6.1
-The sum of the 5th sum of the 5th child is = 6.1
-The sum of the 6th sum of the 5th child is = 6.1
-The sum of the 7th sum of the 5th child is = 6.2
-The sum of the 8th sum of the 5th child is = 6.2
-The sum of the 9th sum of the 5th child is = 6.2
-The sum of the 10th sum of the 5th child is = 6.2
-The 5th sum of the parent is = 4.9
-
-The sum of the 1th sum of the 6th child is = 5.4
-The sum of the 2th sum of the 6th child is = 5.8
-The sum of the 3th sum of the 6th child is = 5.9
-The sum of the 4th sum of the 6th child is = 6.0
-The sum of the 5th sum of the 6th child is = 6.0
-The sum of the 6th sum of the 6th child is = 6.1
-The sum of the 7th sum of the 6th child is = 6.1
-The sum of the 8th sum of the 6th child is = 6.1
-The sum of the 9th sum of the 6th child is = 6.1
-The sum of the 10th sum of the 6th child is = 6.2
-The 6th sum of the parent is = 5.0
-
-The sum of the 1th sum of the 7th child is = 5.4
-The sum of the 2th sum of the 7th child is = 5.7
-The sum of the 3th sum of the 7th child is = 5.9
-The sum of the 4th sum of the 7th child is = 5.9
-The sum of the 5th sum of the 7th child is = 6.0
-The sum of the 6th sum of the 7th child is = 6.0
-The sum of the 7th sum of the 7th child is = 6.1
-The sum of the 8th sum of the 7th child is = 6.1
-The sum of the 9th sum of the 7th child is = 6.1
-The sum of the 10th sum of the 7th child is = 6.1
-The 7th sum of the parent is = 5.0
-
-The sum of the 1th sum of the 8th child is = 5.3
-The sum of the 2th sum of the 8th child is = 5.7
-The sum of the 3th sum of the 8th child is = 5.8
-The sum of the 4th sum of the 8th child is = 5.9
-The sum of the 5th sum of the 8th child is = 5.9
-The sum of the 6th sum of the 8th child is = 6.0
-The sum of the 7th sum of the 8th child is = 6.0
-The sum of the 8th sum of the 8th child is = 6.0
-The sum of the 9th sum of the 8th child is = 6.0
-The sum of the 10th sum of the 8th child is = 6.0
-The 8th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 9th child is = 5.3
-The sum of the 2th sum of the 9th child is = 5.6
-The sum of the 3th sum of the 9th child is = 5.7
-The sum of the 4th sum of the 9th child is = 5.8
-The sum of the 5th sum of the 9th child is = 5.9
-The sum of the 6th sum of the 9th child is = 5.9
-The sum of the 7th sum of the 9th child is = 5.9
-The sum of the 8th sum of the 9th child is = 5.9
-The sum of the 9th sum of the 9th child is = 6.0
-The sum of the 10th sum of the 9th child is = 6.0
-The 9th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 10th child is = 5.2
-The sum of the 2th sum of the 10th child is = 5.5
-The sum of the 3th sum of the 10th child is = 5.7
-The sum of the 4th sum of the 10th child is = 5.7
-The sum of the 5th sum of the 10th child is = 5.8
-The sum of the 6th sum of the 10th child is = 5.8
-The sum of the 7th sum of the 10th child is = 5.9
-The sum of the 8th sum of the 10th child is = 5.9
-The sum of the 9th sum of the 10th child is = 5.9
-The sum of the 10th sum of the 10th child is = 5.9
-The 10th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 11th child is = 5.1
-The sum of the 2th sum of the 11th child is = 5.4
-The sum of the 3th sum of the 11th child is = 5.6
-The sum of the 4th sum of the 11th child is = 5.7
-The sum of the 5th sum of the 11th child is = 5.7
-The sum of the 6th sum of the 11th child is = 5.7
-The sum of the 7th sum of the 11th child is = 5.8
-The sum of the 8th sum of the 11th child is = 5.8
-The sum of the 9th sum of the 11th child is = 5.8
-The sum of the 10th sum of the 11th child is = 5.8
-The 11th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 12th child is = 5.0
-The sum of the 2th sum of the 12th child is = 5.4
-The sum of the 3th sum of the 12th child is = 5.5
-The sum of the 4th sum of the 12th child is = 5.6
-The sum of the 5th sum of the 12th child is = 5.6
-The sum of the 6th sum of the 12th child is = 5.7
-The sum of the 7th sum of the 12th child is = 5.7
-The sum of the 8th sum of the 12th child is = 5.7
-The sum of the 9th sum of the 12th child is = 5.7
-The sum of the 10th sum of the 12th child is = 5.7
-The 12th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 13th child is = 4.9
-The sum of the 2th sum of the 13th child is = 5.3
-The sum of the 3th sum of the 13th child is = 5.4
-The sum of the 4th sum of the 13th child is = 5.5
-The sum of the 5th sum of the 13th child is = 5.5
-The sum of the 6th sum of the 13th child is = 5.6
-The sum of the 7th sum of the 13th child is = 5.6
-The sum of the 8th sum of the 13th child is = 5.6
-The sum of the 9th sum of the 13th child is = 5.6
-The sum of the 10th sum of the 13th child is = 5.6
-The 13th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 14th child is = 4.8
-The sum of the 2th sum of the 14th child is = 5.2
-The sum of the 3th sum of the 14th child is = 5.3
-The sum of the 4th sum of the 14th child is = 5.4
-The sum of the 5th sum of the 14th child is = 5.4
-The sum of the 6th sum of the 14th child is = 5.5
-The sum of the 7th sum of the 14th child is = 5.5
-The sum of the 8th sum of the 14th child is = 5.5
-The sum of the 9th sum of the 14th child is = 5.5
-The sum of the 10th sum of the 14th child is = 5.5
-The 14th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 15th child is = 4.7
-The sum of the 2th sum of the 15th child is = 5.0
-The sum of the 3th sum of the 15th child is = 5.2
-The sum of the 4th sum of the 15th child is = 5.3
-The sum of the 5th sum of the 15th child is = 5.3
-The sum of the 6th sum of the 15th child is = 5.3
-The sum of the 7th sum of the 15th child is = 5.4
-The sum of the 8th sum of the 15th child is = 5.4
-The sum of the 9th sum of the 15th child is = 5.4
-The sum of the 10th sum of the 15th child is = 5.4
-The 15th sum of the parent is = 5.1
-
-The sum of the 1th sum of the 16th child is = 4.6
-The sum of the 2th sum of the 16th child is = 4.9
-The sum of the 3th sum of the 16th child is = 5.0
-The sum of the 4th sum of the 16th child is = 5.1
-The sum of the 5th sum of the 16th child is = 5.2
-The sum of the 6th sum of the 16th child is = 5.2
-The sum of the 7th sum of the 16th child is = 5.2
-The sum of the 8th sum of the 16th child is = 5.2
-The sum of the 9th sum of the 16th child is = 5.3
-The sum of the 10th sum of the 16th child is = 5.3
-The 16th sum of the parent is = 5.2
-
-The sum of the 1th sum of the 17th child is = 4.4
-The sum of the 2th sum of the 17th child is = 4.7
-The sum of the 3th sum of the 17th child is = 4.9
-The sum of the 4th sum of the 17th child is = 4.9
-The sum of the 5th sum of the 17th child is = 5.0
-The sum of the 6th sum of the 17th child is = 5.0
-The sum of the 7th sum of the 17th child is = 5.1
-The sum of the 8th sum of the 17th child is = 5.1
-The sum of the 9th sum of the 17th child is = 5.1
-The sum of the 10th sum of the 17th child is = 5.1
-The 17th sum of the parent is = 5.2
-
-The sum of the 1th sum of the 18th child is = 4.2
-The sum of the 2th sum of the 18th child is = 4.5
-The sum of the 3th sum of the 18th child is = 4.7
-The sum of the 4th sum of the 18th child is = 4.7
-The sum of the 5th sum of the 18th child is = 4.8
-The sum of the 6th sum of the 18th child is = 4.8
-The sum of the 7th sum of the 18th child is = 4.9
-The sum of the 8th sum of the 18th child is = 4.9
-The sum of the 9th sum of the 18th child is = 4.9
-The sum of the 10th sum of the 18th child is = 4.9
-The 18th sum of the parent is = 5.2
-
-The sum of the 1th sum of the 19th child is = 3.9
-The sum of the 2th sum of the 19th child is = 4.3
-The sum of the 3th sum of the 19th child is = 4.4
-The sum of the 4th sum of the 19th child is = 4.5
-The sum of the 5th sum of the 19th child is = 4.5
-The sum of the 6th sum of the 19th child is = 4.6
-The sum of the 7th sum of the 19th child is = 4.6
-The sum of the 8th sum of the 19th child is = 4.6
-The sum of the 9th sum of the 19th child is = 4.6
-The sum of the 10th sum of the 19th child is = 4.7
-The 19th sum of the parent is = 5.2
-
-The sum of the 1th sum of the 20th child is = 3.6
-The sum of the 2th sum of the 20th child is = 3.9
-The sum of the 3th sum of the 20th child is = 4.0
-The sum of the 4th sum of the 20th child is = 4.1
-The sum of the 5th sum of the 20th child is = 4.2
-The sum of the 6th sum of the 20th child is = 4.2
-The sum of the 7th sum of the 20th child is = 4.2
-The sum of the 8th sum of the 20th child is = 4.3
-The sum of the 9th sum of the 20th child is = 4.3
-The sum of the 10th sum of the 20th child is = 4.3
-The 20th sum of the parent is = 5.2
-
-For child 1: Turn Around Time: 3 Run Time: 2
-For child 2: Turn Around Time: 6 Run Time: 2
-For child 3: Turn Around Time: 3 Run Time: 1
-For child 4: Turn Around Time: 3 Run Time: 2
-For child 5: Turn Around Time: 4 Run Time: 2
-For child 6: Turn Around Time: 6 Run Time: 1
-For child 7: Turn Around Time: 2 Run Time: 2
-For child 8: Turn Around Time: 56 Run Time: 32
-For child 9: Turn Around Time: 197 Run Time: 1
-For child 10: Turn Around Time: 8 Run Time: 3
-For child 11: Turn Around Time: 796 Run Time: 306
-For child 12: Turn Around Time: 178 Run Time: 1
-For child 13: Turn Around Time: 1 Run Time: 2
-For child 14: Turn Around Time: 3 Run Time: 2
-For child 15: Turn Around Time: 75 Run Time: 31
-For child 16: Turn Around Time: 6 Run Time: 1
-For child 17: Turn Around Time: 6 Run Time: 3
-For child 18: Turn Around Time: 3 Run Time: 1
-For child 19: Turn Around Time: 5 Run Time: 2
-For child 20: Turn Around Time: 4 Run Time: 2
-
-Average Turn Around Time: 68.0, Average Run Time: 19.0
-$ ls
+$ test1 lp
+Please enter an integer greater than zero. lp is not a valid N.
+$ ls   
 .              1 1 512
 ..             1 1 512
 README         2 2 1972
@@ -332,8 +71,269 @@ wc             2 16 13983
 zombie         2 17 12332
 test1          2 18 16423
 console        3 19 0
-$ echo hello my name is
-hello my name is
-$ echo slim shady
-slim shady
+$ echo hello!
+hello!
+$ test1 20
+The sum of the 1th sum of the 1th child is = 5.1
+The sum of the 2th sum of the 1th child is = 5.4
+The sum of the 3th sum of the 1th child is = 5.5
+The sum of the 4th sum of the 1th child is = 5.6
+The sum of the 5th sum of the 1th child is = 5.7
+The sum of the 6th sum of the 1th child is = 5.7
+The sum of the 7th sum of the 1th child is = 5.7
+The sum of the 8th sum of the 1th child is = 5.8
+The sum of the 9th sum of the 1th child is = 5.8
+The sum of the 10th sum of the 1th child is = 5.8
+The 1th sum of the parent is = 0.0
+
+The sum of the 1th sum of the 2th child is = 5.0
+The sum of the 2th sum of the 2th child is = 5.4
+The sum of the 3th sum of the 2th child is = 5.5
+The sum of the 4th sum of the 2th child is = 5.6
+The sum of the 5th sum of the 2th child is = 5.6
+The sum of the 6th sum of the 2th child is = 5.7
+The sum of the 7th sum of the 2th child is = 5.7
+The sum of the 8th sum of the 2th child is = 5.7
+The sum of the 9th sum of the 2th child is = 5.7
+The sum of the 10th sum of the 2th child is = 5.7
+The 2th sum of the parent is = 3.8
+
+The sum of the 1th sum of the 3th child is = 5.0
+The sum of the 2th sum of the 3th child is = 5.3
+The sum of the 3th sum of the 3th child is = 5.4
+The sum of the 4th sum of the 3th child is = 5.5
+The sum of the 5th sum of the 3th child is = 5.6
+The sum of the 6th sum of the 3th child is = 5.6
+The sum of the 7th sum of the 3th child is = 5.6
+The sum of the 8th sum of the 3th child is = 5.7
+The sum of the 9th sum of the 3th child is = 5.7
+The sum of the 10th sum of the 3th child is = 5.7
+The 3th sum of the parent is = 4.1
+
+The sum of the 1th sum of the 4th child is = 4.9
+The sum of the 2th sum of the 4th child is = 5.3
+The sum of the 3th sum of the 4th child is = 5.4
+The sum of the 4th sum of the 4th child is = 5.5
+The sum of the 5th sum of the 4th child is = 5.5
+The sum of the 6th sum of the 4th child is = 5.6
+The sum of the 7th sum of the 4th child is = 5.6
+The sum of the 8th sum of the 4th child is = 5.6
+The sum of the 9th sum of the 4th child is = 5.6
+The sum of the 10th sum of the 4th child is = 5.6
+The 4th sum of the parent is = 4.2
+
+The sum of the 1th sum of the 5th child is = 4.9
+The sum of the 2th sum of the 5th child is = 5.2
+The sum of the 3th sum of the 5th child is = 5.3
+The sum of the 4th sum of the 5th child is = 5.4
+The sum of the 5th sum of the 5th child is = 5.5
+The sum of the 6th sum of the 5th child is = 5.5
+The sum of the 7th sum of the 5th child is = 5.5
+The sum of the 8th sum of the 5th child is = 5.6
+The sum of the 9th sum of the 5th child is = 5.6
+The sum of the 10th sum of the 5th child is = 5.6
+The 5th sum of the parent is = 4.3
+
+The sum of the 1th sum of the 6th child is = 4.8
+The sum of the 2th sum of the 6th child is = 5.2
+The sum of the 3th sum of the 6th child is = 5.3
+The sum of the 4th sum of the 6th child is = 5.4
+The sum of the 5th sum of the 6th child is = 5.4
+The sum of the 6th sum of the 6th child is = 5.5
+The sum of the 7th sum of the 6th child is = 5.5
+The sum of the 8th sum of the 6th child is = 5.5
+The sum of the 9th sum of the 6th child is = 5.5
+The sum of the 10th sum of the 6th child is = 5.5
+The 6th sum of the parent is = 4.4
+
+The sum of the 1th sum of the 7th child is = 4.8
+The sum of the 2th sum of the 7th child is = 5.1
+The sum of the 3th sum of the 7th child is = 5.2
+The sum of the 4th sum of the 7th child is = 5.3
+The sum of the 5th sum of the 7th child is = 5.4
+The sum of the 6th sum of the 7th child is = 5.4
+The sum of the 7th sum of the 7th child is = 5.4
+The sum of the 8th sum of the 7th child is = 5.4
+The sum of the 9th sum of the 7th child is = 5.5
+The sum of the 10th sum of the 7th child is = 5.5
+The 7th sum of the parent is = 4.4
+
+The sum of the 1th sum of the 8th child is = 4.7
+The sum of the 2th sum of the 8th child is = 5.0
+The sum of the 3th sum of the 8th child is = 5.2
+The sum of the 4th sum of the 8th child is = 5.3
+The sum of the 5th sum of the 8th child is = 5.3
+The sum of the 6th sum of the 8th child is = 5.3
+The sum of the 7th sum of the 8th child is = 5.4
+The sum of the 8th sum of the 8th child is = 5.4
+The sum of the 9th sum of the 8th child is = 5.4
+The sum of the 10th sum of the 8th child is = 5.4
+The 8th sum of the parent is = 4.4
+
+The sum of the 1th sum of the 9th child is = 4.6
+The sum of the 2th sum of the 9th child is = 5.0
+The sum of the 3th sum of the 9th child is = 5.1
+The sum of the 4th sum of the 9th child is = 5.2
+The sum of the 5th sum of the 9th child is = 5.2
+The sum of the 6th sum of the 9th child is = 5.3
+The sum of the 7th sum of the 9th child is = 5.3
+The sum of the 8th sum of the 9th child is = 5.3
+The sum of the 9th sum of the 9th child is = 5.3
+The sum of the 10th sum of the 9th child is = 5.3
+The 9th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 10th child is = 4.6
+The sum of the 2th sum of the 10th child is = 4.9
+The sum of the 3th sum of the 10th child is = 5.0
+The sum of the 4th sum of the 10th child is = 5.1
+The sum of the 5th sum of the 10th child is = 5.2
+The sum of the 6th sum of the 10th child is = 5.2
+The sum of the 7th sum of the 10th child is = 5.2
+The sum of the 8th sum of the 10th child is = 5.2
+The sum of the 9th sum of the 10th child is = 5.3
+The sum of the 10th sum of the 10th child is = 5.3
+The 10th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 11th child is = 4.5
+The sum of the 2th sum of the 11th child is = 4.8
+The sum of the 3th sum of the 11th child is = 5.0
+The sum of the 4th sum of the 11th child is = 5.0
+The sum of the 5th sum of the 11th child is = 5.1
+The sum of the 6th sum of the 11th child is = 5.1
+The sum of the 7th sum of the 11th child is = 5.1
+The sum of the 8th sum of the 11th child is = 5.2
+The sum of the 9th sum of the 11th child is = 5.2
+The sum of the 10th sum of the 11th child is = 5.2
+The 11th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 12th child is = 4.4
+The sum of the 2th sum of the 12th child is = 4.7
+The sum of the 3th sum of the 12th child is = 4.9
+The sum of the 4th sum of the 12th child is = 4.9
+The sum of the 5th sum of the 12th child is = 5.0
+The sum of the 6th sum of the 12th child is = 5.0
+The sum of the 7th sum of the 12th child is = 5.1
+The sum of the 8th sum of the 12th child is = 5.1
+The sum of the 9th sum of the 12th child is = 5.1
+The sum of the 10th sum of the 12th child is = 5.1
+The 12th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 13th child is = 4.3
+The sum of the 2th sum of the 13th child is = 4.6
+The sum of the 3th sum of the 13th child is = 4.8
+The sum of the 4th sum of the 13th child is = 4.9
+The sum of the 5th sum of the 13th child is = 4.9
+The sum of the 6th sum of the 13th child is = 4.9
+The sum of the 7th sum of the 13th child is = 5.0
+The sum of the 8th sum of the 13th child is = 5.0
+The sum of the 9th sum of the 13th child is = 5.0
+The sum of the 10th sum of the 13th child is = 5.0
+The 13th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 14th child is = 4.2
+The sum of the 2th sum of the 14th child is = 4.5
+The sum of the 3th sum of the 14th child is = 4.7
+The sum of the 4th sum of the 14th child is = 4.7
+The sum of the 5th sum of the 14th child is = 4.8
+The sum of the 6th sum of the 14th child is = 4.8
+The sum of the 7th sum of the 14th child is = 4.9
+The sum of the 8th sum of the 14th child is = 4.9
+The sum of the 9th sum of the 14th child is = 4.9
+The sum of the 10th sum of the 14th child is = 4.9
+The 14th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 15th child is = 4.1
+The sum of the 2th sum of the 15th child is = 4.4
+The sum of the 3th sum of the 15th child is = 4.5
+The sum of the 4th sum of the 15th child is = 4.6
+The sum of the 5th sum of the 15th child is = 4.7
+The sum of the 6th sum of the 15th child is = 4.7
+The sum of the 7th sum of the 15th child is = 4.7
+The sum of the 8th sum of the 15th child is = 4.8
+The sum of the 9th sum of the 15th child is = 4.8
+The sum of the 10th sum of the 15th child is = 4.8
+The 15th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 16th child is = 3.9
+The sum of the 2th sum of the 16th child is = 4.3
+The sum of the 3th sum of the 16th child is = 4.4
+The sum of the 4th sum of the 16th child is = 4.5
+The sum of the 5th sum of the 16th child is = 4.5
+The sum of the 6th sum of the 16th child is = 4.6
+The sum of the 7th sum of the 16th child is = 4.6
+The sum of the 8th sum of the 16th child is = 4.6
+The sum of the 9th sum of the 16th child is = 4.6
+The sum of the 10th sum of the 16th child is = 4.7
+The 16th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 17th child is = 3.8
+The sum of the 2th sum of the 17th child is = 4.1
+The sum of the 3th sum of the 17th child is = 4.2
+The sum of the 4th sum of the 17th child is = 4.3
+The sum of the 5th sum of the 17th child is = 4.4
+The sum of the 6th sum of the 17th child is = 4.4
+The sum of the 7th sum of the 17th child is = 4.4
+The sum of the 8th sum of the 17th child is = 4.5
+The sum of the 9th sum of the 17th child is = 4.5
+The sum of the 10th sum of the 17th child is = 4.5
+The 17th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 18th child is = 3.6
+The sum of the 2th sum of the 18th child is = 3.9
+The sum of the 3th sum of the 18th child is = 4.0
+The sum of the 4th sum of the 18th child is = 4.1
+The sum of the 5th sum of the 18th child is = 4.2
+The sum of the 6th sum of the 18th child is = 4.2
+The sum of the 7th sum of the 18th child is = 4.2
+The sum of the 8th sum of the 18th child is = 4.3
+The sum of the 9th sum of the 18th child is = 4.3
+The sum of the 10th sum of the 18th child is = 4.3
+The 18th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 19th child is = 3.3
+The sum of the 2th sum of the 19th child is = 3.6
+The sum of the 3th sum of the 19th child is = 3.8
+The sum of the 4th sum of the 19th child is = 3.9
+The sum of the 5th sum of the 19th child is = 3.9
+The sum of the 6th sum of the 19th child is = 3.9
+The sum of the 7th sum of the 19th child is = 4.0
+The sum of the 8th sum of the 19th child is = 4.0
+The sum of the 9th sum of the 19th child is = 4.0
+The sum of the 10th sum of the 19th child is = 4.0
+The 19th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 20th child is = 3.0
+The sum of the 2th sum of the 20th child is = 3.3
+The sum of the 3th sum of the 20th child is = 3.4
+The sum of the 4th sum of the 20th child is = 3.5
+The sum of the 5th sum of the 20th child is = 3.5
+The sum of the 6th sum of the 20th child is = 3.6
+The sum of the 7th sum of the 20th child is = 3.6
+The sum of the 8th sum of the 20th child is = 3.6
+The sum of the 9th sum of the 20th child is = 3.6
+The sum of the 10th sum of the 20th child is = 3.7
+The 20th sum of the parent is = 4.5
+
+For child 1: Turn Around Time: 3 Run Time: 1
+For child 2: Turn Around Time: 4 Run Time: 2
+For child 3: Turn Around Time: 2 Run Time: 1
+For child 4: Turn Around Time: 2 Run Time: 2
+For child 5: Turn Around Time: 3 Run Time: 1
+For child 6: Turn Around Time: 88 Run Time: 67
+For child 7: Turn Around Time: 4 Run Time: 3
+For child 8: Turn Around Time: 2 Run Time: 2
+For child 9: Turn Around Time: 3 Run Time: 1
+For child 10: Turn Around Time: 3 Run Time: 2
+For child 11: Turn Around Time: 4 Run Time: 2
+For child 12: Turn Around Time: 4 Run Time: 2
+For child 13: Turn Around Time: 2 Run Time: 2
+For child 14: Turn Around Time: 3 Run Time: 2
+For child 15: Turn Around Time: 6 Run Time: 2
+For child 16: Turn Around Time: 4 Run Time: 3
+For child 17: Turn Around Time: 3 Run Time: 1
+For child 18: Turn Around Time: 4 Run Time: 1
+For child 19: Turn Around Time: 4 Run Time: 1
+For child 20: Turn Around Time: 152 Run Time: 1
+
+Average Turn Around Time: 15.0, Average Run Time: 4.0
 

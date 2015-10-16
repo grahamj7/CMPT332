@@ -18,6 +18,8 @@ struct {
   struct proc *medtail;
   struct proc *lowtail;
   
+  int time_since_moveup;
+  
 } ptable;
 
 static struct proc *initproc;
@@ -28,6 +30,7 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 void addtolist(struct proc*);
+void moveup_procs(void);
 
 void
 pinit(void)
@@ -39,6 +42,7 @@ pinit(void)
   ptable.hightail = 0;
   ptable.medtail = 0;
   ptable.lowtail = 0;
+  ptable.time_since_moveup = 0;
 }
 
 //PAGEBREAK: 32
@@ -338,6 +342,10 @@ scheduler(void)
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
       proc = 0;
+      ptable.time_since_moveup = ptable.time_since_moveup + 1;
+      if( moveup == ptable.time_since_moveup ){
+        moveup_procs();\
+      }
     }
     release(&ptable.lock);
   }
@@ -596,4 +604,31 @@ void addtolist(struct proc *p){
 		ptable.lowtail->nextproc = 0;
 	}
 }
+
+// Moves all procs to the high priority list
+void moveup_procs(void){
+  struct proc *temp;
+  
+  // Add all med priority procs to high priority queue
+  while( 0 != ptable.medhead ){
+    temp = ptable.medhead->nextproc;
+    ptable.medhead->priority = HIGH;
+    addtolist(ptable.medhead);
+    ptable.medhead = temp;
+  }
+  // Ensire medium priority list is empty
+  ptable.medhead = 0;
+  
+  // Add all low priority procs to high priority queue
+  while( 0 != ptable.lowhead ){
+    temp = ptable.lowhead->nextproc;
+    ptable.lowhead->priority = HIGH;
+    addtolist(ptable.lowhead);
+    ptable.lowhead = temp;
+  }
+  // Ensire low priority list is empty
+  ptable.lowhead = 0;
+}
+  
+  
 

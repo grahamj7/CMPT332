@@ -27,6 +27,8 @@ struct {
   struct proc *medtail;
   struct proc *lowtail;
   
+  int time_since_moveup;
+  
 } ptable;
 
 // Fetch the nth word-sized system call argument as a file descriptor
