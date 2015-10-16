@@ -4,11 +4,11 @@
 
 int
 main (int argc, char *argv[]){
-  int trn_arnd_time=-1, run_time=-1, j = 20; /* Number of child processes */
-  int trn_arnd_time_arr[j], sum_trn_arnd_time;
-  int run_time_arr[j], sum_run_time;
-  int x, rc, N, i, k, m;
+  int sum_trn_arnd_time, sum_run_time, trn_arnd_time=-1, run_time=-1;
+  int x, rc, N, i, k, m, j = 20; /* Number of child processes */
+  int run_time_arr[j], trn_arnd_time_arr[j];
   double sum_child = 0.0, sum_parent = 0.0, C = 0.0;
+  int int_part, first_dig;
 
   /* Check that user did not enter more than one argument for N */
   for (i=2; i < argc; i++)
@@ -28,19 +28,24 @@ main (int argc, char *argv[]){
       exit();
     }
     else if (rc == 0){ // child
+      while(1){
+        printf(1, "Give me an N!: ");
+        /*if( fscanf(0, "%d", &N) != 1)
+          printf(1, "N must be a single positive integer. Try again.\n");
+        else */
+          break;
+      }
       for (k = 1; k <= 10; k++){
         C = 1.0/k;
         sum_child = 0.0;
         for (i = 1; i<( (21 - x)*N ); i++){
           sum_child = sum_child + (1.0/(i/0.9 + C));
         }
-        //TODO: printing doubles correctly
-        printf(1, "The sum of the %dth sum of the %dth child is = %d\n", k, x + 1, sum_child);
       }
       exit();
     }
     else { // parent
-      if(waitstat(&trn_arnd_time, &run_time) < 0){s
+      if(waitstat(&trn_arnd_time, &run_time) < 0){
         printf(1, "waitstat() failed.");
         break;
       } 
@@ -52,8 +57,10 @@ main (int argc, char *argv[]){
       for(m = 1; m < 5*N; m++){
         sum_parent = sum_parent + (1.0/((m/0.9) + (1.0/x)));
       }
-      //TODO: printing doubles correctly
-      printf(1, "The %dth sum of the parent is = %d\n\n", x + 1, sum_parent);
+      int_part = (unsigned int) sum_parent;
+      first_dig = (unsigned int) (sum_parent*10) - (10*int_part);
+		      
+      printf(1, "The %dth sum of the parent is = %d.%d\n\n", x + 1, int_part, first_dig);
     }
   }
   /* At end of program, display all child turn 
@@ -61,8 +68,17 @@ main (int argc, char *argv[]){
   for (x = 0; x < j; x++){
     printf(1, "For child %d: Turn Around Time: %d Run Time: %d\n", x+1, trn_arnd_time_arr[x], run_time_arr[x]);
   }
-  // TODO: change averages to print doubles
-  printf(1, "\nAverage Turn Around Time: %d, Average Run Time: %d\n", sum_trn_arnd_time/j, sum_run_time/j);
+
+  double avg_trn_time = sum_trn_arnd_time/j, avg_run_time = sum_run_time/j;
+  int_part = (unsigned int) avg_trn_time;
+  first_dig = (unsigned int) (avg_trn_time*10) - (10*int_part);
+  printf(1, "\nAverage Turn Around Time: %d.%d, ", int_part, first_dig);
+  
+  int_part = (unsigned int) avg_run_time;
+  first_dig = (unsigned int) (avg_run_time*10) - (10*int_part);
+  printf(1, "Average Run Time: %d.%d\n", int_part, first_dig);
+  
   exit();
 }
-s
+
+
