@@ -7,7 +7,7 @@ jlr247 - Jennifer Rospad
 
 Files edited beyond the edits made in question 1:
 
-param.h, proc.h, proc.c, sysfile.c
+param.h, proc.h, proc.c, sysfile.c, test2.c, Makefile
   
 ========================
 Details about what was edited in each file:
@@ -21,12 +21,18 @@ proc.h:
     struct (L77-80)
 
 proc.c:
-  MAJORITY OF WORK DONE HERE --> note functions and line #'s 
-    before handing in!
+  L14-21, 32-33, 39-45, 68, 131-133, 196-198, 309-355
 
 sysfile.c:
   added head and tail pointers for high, medium and low priority
-  queues to ptable structure (L23-28)
+  queues, and time_since_moveup to ptable structure (L23-28)
+
+test2.c:
+  a completely new file to run more tests on our newly tweaked
+  version of xv6.
+
+Makefile:
+  added test2 under UPROGS in Makefile (L176)
 
 ========================
 What is working:

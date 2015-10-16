@@ -32,7 +32,8 @@ main (int argc, char *argv[]){
         printf(1, "Give me an N!: ");
         /*if( fscanf(0, "%d", &N) != 1)
           printf(1, "N must be a single positive integer. Try again.\n");
-        else */
+        else 
+        */
           break;
       }
       for (k = 1; k <= 10; k++){
