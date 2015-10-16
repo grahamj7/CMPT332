@@ -19,6 +19,14 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+
+  struct proc *highhead;
+  struct proc *medhead;
+  struct proc *lowhead;
+  struct proc *hightail;
+  struct proc *medtail;
+  struct proc *lowtail;
+  
 } ptable;
 
 // Fetch the nth word-sized system call argument as a file descriptor

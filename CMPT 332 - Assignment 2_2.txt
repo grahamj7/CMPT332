@@ -1,19 +1,31 @@
-CMPT 332 - Assignment 2
+CMPT 332 (Fall 2015)
+Assignment 2 - Question 1
 jhg257 - Jordaen Graham
 jlr247 - Jennifer Rospad
 
+========================
 
-==== *** QUESTION 2 *** ====
-files edited: param.h, proc.h, proc.c
+Files edited beyond the edits made in question 1:
 
-added mtimes and moveup definitions to param.h          added code L14-15
-added definitions for HIGH, MED, LOW priority (L 4-7) and priority, prevproc,
-nextproc,
-        and t_run_med (L77-80) to proc.h
-added high priority setting when allocating new proc in proc.c (L57)
-added pointers to priority heads and tails in proc.c (L23-29)
-added a call to addtolist() any time a proc has its' state changed to RUNNABLE
-in proc.c
-added addtolist() function in proc.c
+param.h, proc.h, proc.c, sysfile.c
+  
+========================
+Details about what was edited in each file:
 
+param.h:
+  defined mtimes and moveup (L14-15)
+
+proc.h:
+  added priority definitions for HIGH, MED, and LOW (L4-7)
+  added priority, nextproc, lastproc and t_med_run to proc
+    struct (L77-80)
+
+proc.c:
+  MAJORITY OF WORK DONE HERE --> note functions and line #'s 
+    before handing in!
+
+*UNTESTED BELOW*
+sysfile.c:
+  added head and tail pointers to proc structure (L23-28)
+  
 

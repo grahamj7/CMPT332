@@ -71,7 +71,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  uint created;				   	// Time the process was created (TIme in Ticks)
+  uint created;				   	// Time the process was created (Time in Ticks)
   uint ended;		         	// Time the process was ended   (Time in Ticks)
   uint running;		       	// Running time of the process  (Time in Ticks)
   int priority;					 	// Priority list that proc is on (HIGH, MED, or LOW) 
