@@ -189,6 +189,8 @@ fork(void)
   // lock to force the compiler to emit the np->state write last.
   acquire(&ptable.lock);
   np->state = RUNNABLE;
+  np->priority = HIGH;  // make sure new proc has high priority
+  np->t_med_run = 0;
   addtolist(np);
   release(&ptable.lock);
   
@@ -310,34 +312,33 @@ scheduler(void)
     
     // Go through priority lists looking for processes to run.
     acquire(&ptable.lock);
-    if( 0 != ptable.highhead ){
+    if( 0 != ptable.highhead ){ // Grab high priority proc if available
       p = ptable.highhead;
+      //cprintf("Executing high proc %s (PID %d)\n", p->name, p->pid);
       ptable.highhead = ptable.highhead->nextproc;
       foundproc = 1;
     }
-    else if( 0!= ptable.medhead ){
+    else if( 0!= ptable.medhead ){ // Grab med priority proc if available
       p = ptable.medhead;
+      //cprintf("Executing med proc %s (PID %d) mcount: %d\n", p->name, p->pid, p->t_med_run);
       ptable.medhead = ptable.medhead->nextproc;
       foundproc = 1;
     }
-    else if ( 0 != ptable.lowhead ){
+    else if ( 0 != ptable.lowhead ){ // Grab low priority proc if available
       p = ptable.lowhead;
+      //cprintf("Executing low proc %s (PID %d)\n", p->name, p->pid);
       ptable.lowhead = ptable.lowhead->nextproc;
       foundproc = 1;
     }
     
-    if (1 == foundproc) {
+    if (1 == foundproc) { // If there is a runnable proc, execute it
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
       proc = 0;
-      if( p->state == RUNNABLE ){
-        addtolist(p);
-      }
     }
-
     release(&ptable.lock);
   }
   
@@ -552,11 +553,11 @@ procdump(void)
 // Adds a process to the appropriate queue of high, med, or low priority
 void addtolist(struct proc *p){
 	if( p->priority == HIGH ){
-    		if( 0 == ptable.highhead ){ //case of empty high priority list
-	    	ptable.hightail = p;
-	    	ptable.highhead = p;
+    if( 0 == ptable.highhead ){ //case of empty high priority list
+      ptable.hightail = p;
+      ptable.highhead = p;
 		} else {
-	    		ptable.hightail->nextproc = p;
+      ptable.hightail->nextproc = p;
 			p->prevproc = ptable.hightail;
 			ptable.hightail = p;
 		}
@@ -565,23 +566,24 @@ void addtolist(struct proc *p){
 		p->t_med_run = 0;
 		ptable.hightail->nextproc = 0;
 	}
-	else if( p->priority == MED ){
-	  
-    		if( p->t_med_run == mtimes ){
-        		p->priority = LOW;
-    		} else {
-    			if( 0 == ptable.medhead ){ //case of empty med priority list
-        			ptable.medtail = p;
-				ptable.medhead = p;
-			} else {
-				ptable.medtail->nextproc = p;
-				p->prevproc = ptable.medtail;
-				ptable.medtail = p;
-			}
-			p->t_med_run = p->t_med_run + 1;
-			ptable.medtail->nextproc = 0;
-    		}
-	}
+	
+  else if( p->priority == MED ){
+    if( p->t_med_run == mtimes ){
+      p->priority = LOW;
+    } else {
+        if( 0 == ptable.medhead ){ //case of empty med priority list
+          ptable.medtail = p;
+				  ptable.medhead = p;
+        } else {
+				  ptable.medtail->nextproc = p;
+				  p->prevproc = ptable.medtail;
+				  ptable.medtail = p;
+        }
+			  p->t_med_run = p->t_med_run + 1;
+			  ptable.medtail->nextproc = 0;
+    }
+  }
+
 	if( p->priority == LOW ){
 		if( 0 == ptable.lowhead ){ //case of empty low priority list
 			ptable.lowtail = p;
