@@ -42,7 +42,7 @@ int M_INIT(int size){
   head->magic_num = 0;
   tail = head;
   
-  node_tf *footer = head + head->size;
+  node_tf *footer = head + head->size + sizeof(head);
   footer->size = head->size;
   footer->prev =  NULL;
   footer->magic_num = 0;
@@ -64,6 +64,7 @@ void *alloc(node_th *header, int size){
   printf("TAIL: %p, HEAD: %p\n, Header: %p, Next: %p\n, Footer: %p, Prev: %p\n", tail, head, header, next, footer, prev);
   
   if( NULL != prev) {
+    printf("hi\n");
     printf("prev ptr: %p. prev size: %d, size of header: %d\n", prev, prev->size, sizeof(header));
     prevhead = (node_th*) prev - (prev->size) - sizeof(header);
     printf("prevhead: %p\n", prevhead);
@@ -100,42 +101,44 @@ void *alloc(node_th *header, int size){
   }  //TODO: Make 16 byte boundary rule enforced
   else{
     //split_it_up();
-    printf("1\n");
+    printf("Split\n");
     header->magic_num = MAGIC_NUM;
     header->size = size;
     header->next = NULL;
-    printf("2\n");
+
     
     int temp = footer->size - size - sizeof(node_th*) - sizeof(node_tf*); // remaining size available
     printf("%d: %d: %d: %d\n", footer->size, size, sizeof(node_th), sizeof(node_tf));
     footer->size = temp;
     footer->prev = NULL;
-    printf("3\n");
+
 
     node_tf *new_footer = header + sizeof(header) + size;
     new_footer->size = size;
     new_footer->magic_num = MAGIC_NUM;
     new_footer->prev = NULL;
-    printf("4\n");
+
     
     new_header = new_footer + sizeof(node_tf);
     new_header->next = next;
     new_header->magic_num = 0;
     new_header->size = footer->size;
-    printf("5\n");
+
     
     if (NULL != prevhead)
       prevhead->next = new_header;
     else
       head = new_header;
-    printf("6\n");
+
     if (NULL != nextfoot)
       nextfoot->prev = footer;
   }
   printf("HEAD: %p, size: %d\n", head, head->size);
   printf("PTR: %p\n", ((void*)header + sizeof(header)));
-  return ((void*)header + sizeof(header));
-
+  node_th *ptr = ((void*)header + sizeof(header));
+  node_tf *prt_f = ptr + header->size;
+  printf("header: %p, footer: %p, prev: %p\n", new_header, footer, footer->prev);
+  return ptr;
 }
 
 void *M_ALLOC(int size){
