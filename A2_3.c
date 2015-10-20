@@ -2,24 +2,21 @@
 #include "stdlib.h"
 #include "sys/mman.h"
 #include "A2_3.h"
-#define MAGIC_NUM 1234567
+
 int init = 0;
 
+#define MAGIC_NUM 500
 
-typedef struct __node_th{
-  int size;
-  int magic_num;
-  struct __node_th *next;
-}node_th;
+node_th *head, *tail; 
+void *start_addr, *end_addr;
 
-typedef struct __node_tf{
-  int size;
-  int magic_num;
-  struct __node_tf *prev;
-}node_tf;
 
-node_th *head;
-node_th *tail; 
+
+
+
+
+
+
 
 int M_INIT(int size){
 
@@ -27,119 +24,161 @@ int M_INIT(int size){
     return -1;
   init = 1;
   if (size < 1){
-    printf("You entered a size of %d, defaulted to 4096\n", size);
-    size = 4096;
+    fprintf(stdout, "You entered a size of %d, defaulted to 1024\n", size);
+    size = 1024;
   }
   
   /* mmap() returns a pointer to a chunk of free space */
-  head = mmap(NULL, size + sizeof(node_th) + sizeof(node_tf),PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+  int allocate_space = size + sizeof(node_th) + sizeof(node_tf);
+  int rem = allocate_space % 16;
+  if (0 != rem)
+    allocate_space = allocate_space + rem;
+  printf("allocating %d bytes of space\n", allocate_space);
+  head = mmap(NULL, allocate_space,PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
   if (NULL == head) {
     fprintf(stderr, "mmap has failed!");
     return -1;
   }
+  start_addr = head;
   head->size = size;
   head->next = NULL;
   head->magic_num = 0;
   tail = head;
   
-  node_tf *footer = head + head->size + sizeof(head);
+  node_tf *footer;
+  footer = (node_tf*) head + head->size + sizeof(node_th);
   footer->size = head->size;
   footer->prev =  NULL;
   footer->magic_num = 0;
+  end_addr = footer;
 
-  printf("Head: %p, next: %p, size: %d\n", head, head->next, head->size);
-  printf("Tail: %p, next: %p, size: %d\n", tail, tail->next, tail->size);
-  printf("Footer: %p, prev: %p, size: %d\n", footer, footer->prev, footer->size);
+  printf("Head/Tail: %p, next: %p, size: %d\n", head, head->next, head->size);
+  printf("Footer: %p, prev: %p, size: %d\n\n\n", footer, footer->prev, footer->size);
   return 0;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void *alloc(node_th *header, int size){
-  node_th *next = header->next;
-  node_tf *footer = header + header->size + sizeof(header);
-  node_tf* prev = footer->prev;
+
+  node_th *next;
+  node_tf *footer, *prev;
   node_th* prevhead = NULL;
   node_tf* nextfoot = NULL;
-  node_th *new_header;
-  
-  printf("TAIL: %p, HEAD: %p\n, Header: %p, Next: %p\n, Footer: %p, Prev: %p\n", tail, head, header, next, footer, prev);
-  
+  node_th *allocated_header, *new_header;
+  node_tf *allocated_footer, *new_footer;
+
+
+  footer = ((node_tf*)(header) + header->size + sizeof(node_th));
+  printf("Header: %p, size: %d, Footer: %p, size: \n", header, header->size, footer);
+  next = header->next;
+  prev = footer->prev;
+
   if( NULL != prev) {
-    printf("hi\n");
-    printf("prev ptr: %p. prev size: %d, size of header: %d\n", prev, prev->size, sizeof(header));
     prevhead = (node_th*) prev - (prev->size) - sizeof(header);
-    printf("prevhead: %p\n", prevhead);
     if( MAGIC_NUM == prevhead->magic_num ) {// Double check not alloc
-      printf("NULL 1!\n");
       return NULL;
     }
   }
-
+  
   if( NULL != next) {
-    printf("next\n");
     nextfoot = (node_tf*) next + sizeof(header) + next->size;
     if( MAGIC_NUM == nextfoot->magic_num ){ // Double check not alloc
-      printf("NULL 2!\n");
       return NULL;
     }
   }
-  printf("check\n");
+
+  printf("PrevHead: %p, NextFoot: %p\n", prevhead, nextfoot);
+
   if (size == header->size){
-    printf("HERE!\n");
-
-    header->magic_num = MAGIC_NUM;
-    footer->magic_num = MAGIC_NUM;
-    header->next = NULL;
-    footer->prev = NULL;
-    if (head == tail){
-      head = NULL;
-      tail = NULL;
-    }
-    if (NULL != prevhead)
-      prevhead->next = next;
-    if (NULL != nextfoot)
-      nextfoot->prev = prev;
-  }  //TODO: Make 16 byte boundary rule enforced
-  else{
-    //split_it_up();
-    printf("Split\n");
-    header->magic_num = MAGIC_NUM;
-    header->size = size;
-    header->next = NULL;
-
+      // grab old code
+  } else{
+  
+    // new\free space stuff
+    int footer_size = footer->size;
+    new_footer = footer;
     
-    int temp = footer->size - size - sizeof(node_th*) - sizeof(node_tf*); // remaining size available
-    printf("%d: %d: %d: %d\n", footer->size, size, sizeof(node_th), sizeof(node_tf));
-    footer->size = temp;
-    footer->prev = NULL;
-
-
-    node_tf *new_footer = header + sizeof(header) + size;
-    new_footer->size = size;
-    new_footer->magic_num = MAGIC_NUM;
-    new_footer->prev = NULL;
-
-    
-    new_header = new_footer + sizeof(node_tf);
-    new_header->next = next;
+    new_footer->size = footer_size - size - sizeof(node_tf) - sizeof(node_th);
+    new_footer->magic_num = 0;
+    new_footer->prev = prev;
+  
+    new_header = (node_th*) (header) + sizeof(node_th) + size + sizeof(node_tf);
     new_header->magic_num = 0;
-    new_header->size = footer->size;
+    new_header->size = new_footer->size;
+    new_header->next = next;
+
+
+    printf("F_Header: %p, size: %d\nF_Footer: %p, size: %d\n", new_header, new_header->size, new_footer, new_footer->size);  
+
+
+
+
+
+
+
+
+    allocated_header = header;
+    allocated_footer = (node_tf*) (allocated_header) + sizeof(node_th) + size;
+    allocated_header->next = NULL;
+    allocated_footer->prev = NULL;
+    allocated_header->magic_num = MAGIC_NUM;
+    allocated_footer->magic_num = MAGIC_NUM;
+    allocated_header->size = size;
+    allocated_footer->size = size;
 
     
-    if (NULL != prevhead)
-      prevhead->next = new_header;
-    else
+    if (NULL == prev){
+      if (head == tail)
+        tail = new_header;
       head = new_header;
-
-    if (NULL != nextfoot)
-      nextfoot->prev = footer;
+    }
   }
-  printf("HEAD: %p, size: %d\n", head, head->size);
-  printf("PTR: %p\n", ((void*)header + sizeof(header)));
-  node_th *ptr = ((void*)header + sizeof(header));
-  node_tf *prt_f = ptr + header->size;
-  printf("header: %p, footer: %p, prev: %p\n", new_header, footer, footer->prev);
-  return ptr;
+  
+  
+  printf("A_Header: %p, size: %d\nA_Footer: %p, size: %d\n", allocated_header, allocated_header->size, allocated_footer, allocated_footer->size);
+
+  printf("F_Header: %p, size: %d\nF_Footer: %p, size: %d\n", new_header, new_header->size, new_footer, new_footer->size);
+
+
+
+
+
+
+
+
+
+
+  return ((void*) allocated_header + sizeof(allocated_header));
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void *M_ALLOC(int size){
   node_th *cursor;
@@ -148,11 +187,14 @@ void *M_ALLOC(int size){
     fprintf(stderr, "You attempted to allocate an invalid size, %d", size);
     return NULL;
   }
+  int new_size = size + sizeof(node_th) + sizeof(node_tf);
+  int rem = new_size % 16;
+  if (0 != rem){
+    size = size + rem;
+  }
   cursor = head;
   while (size > cursor->size) {
     if (NULL == cursor->next){
-      printf("CURSOR!\n");
-
       return NULL;
     }
     cursor = cursor->next;
@@ -161,12 +203,21 @@ void *M_ALLOC(int size){
   return ptr;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 int M_FREE(void *ptr){
-  printf("1\n");
-  node_th *header = ptr - sizeof(node_th*);
-  printf("2\n");
+  node_th *header = ptr - sizeof(node_th);
   node_tf *footer = (node_tf*) ptr + header->size;
-  printf("3\n");
   
   if (MAGIC_NUM != header->magic_num)
     return -1;
@@ -175,6 +226,7 @@ int M_FREE(void *ptr){
   footer->magic_num = 0;
   munmap(ptr, header->size);
   
+  //add to freelist
   if (NULL == head){
     head = header;
     tail = header;
@@ -185,45 +237,104 @@ int M_FREE(void *ptr){
     tail = header;
     tail->next = NULL;
   }
-  //add to freelist
   
   //coalesce
+  node_tf *prevfoot = NULL, *nextfoot = NULL;
+  node_th *nexthead = NULL, *prevhead = NULL;
   
+  if (header != start_addr)
+    prevfoot = header - sizeof(node_tf);
+  if (footer != end_addr)
+    nexthead = footer + sizeof(node_tf);
+  
+  if (NULL == nexthead || NULL == prevfoot){
+    fprintf(stderr, "Nexthead and prevfoot cannot be NULL!");
+    return -1;
+  }
+
+  if (MAGIC_NUM != prevfoot->magic_num){
+    prevhead = prevfoot - prevfoot->size - sizeof(node_th);
+    prevhead->size = prevhead->size + header->size + sizeof(node_th) + sizeof(node_tf);
+    footer->size = prevhead->size;
+    footer->prev = prevfoot->prev;
+  }
+  if (MAGIC_NUM != nexthead->magic_num){
+    nextfoot = nexthead + nexthead->size + sizeof(node_th);
+    nextfoot->size = nextfoot->size + footer->size + sizeof(node_th) + sizeof(node_tf);
+    header->size = nextfoot->size;
+    header->next = nexthead->next;
+  }
   return 0;
 }
 
+
+
+
+
+
+
+
+
+
+
 void M_DISPLAY(){
   node_th *cursor;
-  printf("Free Chunks: [\n");
+  fprintf(stdout, "Free Chunks: [\n");
   cursor = (node_th*) head;
   while (NULL != cursor){
     if (MAGIC_NUM != cursor->magic_num)
-      printf("\tptr: %p, size: %d\n", cursor, cursor->size);
+      fprintf(stdout, "\tptr: %p, size: %d\n", cursor, cursor->size);
  
     cursor = cursor->next;
   }
-  printf("\n]\n");
+  fprintf(stdout, "\n]\n");
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char **argv){
+  printf("\n\nStarting!\n\n\n\n");
+
   M_INIT(1024);
+  
   printf("MALLOC!\n");
   void *ptr1 = M_ALLOC(128);
+  
   printf("MALLOC!\n");
   void *ptr2 = M_ALLOC(64);
-  printf("FREE!\n");
-  M_FREE(ptr1);
+
+//  printf("FREE!\n");
+//  M_FREE(ptr1);
+
   printf("MALLOC!\n");
   void *ptr3 = M_ALLOC(32);
+
+//  printf("DISPLAY!\n");
+//  M_DISPLAY();
+
+//  printf("FREE!\n");
+//  M_FREE(ptr2);
+
+//  printf("DISPLAY!\n");
+//  M_DISPLAY();
+
+//  printf("FREE!\n");
+//  M_FREE(ptr3);
+
   printf("DISPLAY!\n");
   M_DISPLAY();
-  printf("FREE!\n");
-  M_FREE(ptr2);
-  printf("DISPLAY!\n");
-  M_DISPLAY();
-  printf("FREE!\n");
-  M_FREE(ptr3);
-  printf("DISPLAY!\n");
-  M_DISPLAY();
+
   return 0;
 }

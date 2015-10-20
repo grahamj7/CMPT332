@@ -13,10 +13,10 @@ run: A2_3
 	@A2_3
 
 A2_3: A2_3.c
-	$(CC) $(CCFLAGS) -o A2_3 A2_3.c
+	$(CC) $(CCFLAGS) -g -o A2_3 A2_3.c
 
 A2_3.o: A2_3.c
-	$(CC) $(CCFLAGS) -c A2_3.c
+	$(CC) $(CCFLAGS) -g -c A2_3.c
 
 library: A2_3.o
 	@ar -cq mem.a *.o
