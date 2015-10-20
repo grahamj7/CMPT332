@@ -5,17 +5,8 @@
 
 int init = 0;
 
-#define MAGIC_NUM 500
-
 node_th *head, *tail; 
 void *start_addr, *end_addr;
-
-
-
-
-
-
-
 
 
 int M_INIT(int size){
@@ -56,22 +47,6 @@ int M_INIT(int size){
   printf("Footer: %p, prev: %p, size: %d\n\n\n", footer, footer->prev, footer->size);
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void *alloc(node_th *header, int size){
@@ -127,11 +102,6 @@ void *alloc(node_th *header, int size){
 
 
 
-
-
-
-
-
     allocated_header = header;
     allocated_footer = (node_tf*) (allocated_header) + sizeof(node_th) + size;
     allocated_header->next = NULL;
@@ -149,35 +119,17 @@ void *alloc(node_th *header, int size){
     }
   }
   
-  
+  // shows error in header->size
+    
   printf("A_Header: %p, size: %d\nA_Footer: %p, size: %d\n", allocated_header, allocated_header->size, allocated_footer, allocated_footer->size);
 
   printf("F_Header: %p, size: %d\nF_Footer: %p, size: %d\n", new_header, new_header->size, new_footer, new_footer->size);
 
 
 
-
-
-
-
-
-
-
   return ((void*) allocated_header + sizeof(allocated_header));
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void *M_ALLOC(int size){
@@ -202,17 +154,6 @@ void *M_ALLOC(int size){
   ptr = alloc(cursor, size);
   return ptr;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 int M_FREE(void *ptr){
@@ -268,15 +209,6 @@ int M_FREE(void *ptr){
 }
 
 
-
-
-
-
-
-
-
-
-
 void M_DISPLAY(){
   node_th *cursor;
   fprintf(stdout, "Free Chunks: [\n");
@@ -289,19 +221,6 @@ void M_DISPLAY(){
   }
   fprintf(stdout, "\n]\n");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 int main(int argc, char **argv){

@@ -2,6 +2,8 @@
 #ifndef A2_3_HEADER
 #define A2_3_HEADER
 
+#define MAGIC_NUM 500
+
 typedef struct __node_th{
   int size;
   int magic_num;
