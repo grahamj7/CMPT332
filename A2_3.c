@@ -81,7 +81,19 @@ void *alloc(node_th *header, int size){
   printf("PrevHead: %p, NextFoot: %p\n", prevhead, nextfoot);
 
   if (size == header->size){
-      // grab old code
+    header->magic_num = MAGIC_NUM;
+    footer->magic_num = MAGIC_NUM;
+    header->next = NULL;
+    footer->prev = NULL;
+    if (head == tail){
+      head = NULL;
+      tail = NULL;
+    }
+    if (NULL != prevhead)
+      prevhead->next = next;
+    if (NULL != nextfoot)
+      nextfoot->prev = prev;
+      
   } else{
   
     // new\free space stuff
@@ -126,6 +138,23 @@ void *alloc(node_th *header, int size){
   printf("F_Header: %p, size: %d\nF_Footer: %p, size: %d\n", new_header, new_header->size, new_footer, new_footer->size);
 
 
+/* 
+    if (head == tail){
+      head = NULL;
+      tail = NULL;
+    }
+    if (NULL != prevhead)
+      prevhead->next = new_header;
+    else {
+      if (head == tail)
+        tail = new_header;
+      head = new_header;      
+    }
+
+    if (NULL != nextfoot)
+      nextfoot->prev = footer;
+  }
+*/
 
   return ((void*) allocated_header + sizeof(allocated_header));
 
