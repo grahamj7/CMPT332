@@ -5,15 +5,19 @@
 #define ALLOCATED 1
 #define FREE 0
 
+#define TRUE_NODE 1237654 
+
 typedef struct __node_th{
   int size;
   int is_alloc;
+  int is_node;
   struct __node_th *next;
 }node_th;
 
 typedef struct __node_tf{
   int size;
   int is_alloc;
+  int is_node;
   struct __node_tf *prev;
 }node_tf;
 

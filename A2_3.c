@@ -198,8 +198,14 @@ void *M_ALLOC(int size){
 
 
 int M_FREE(void *ptr){
+	
   node_th *header = (void*)ptr - sizeof(node_th); /* Header of chunk ptr is in */
-//  printf("Gets to here before failing! ptr: %p header: %p\n", ptr, header);
+  
+  if (((void*)header) < start_addr || ((void*)header) > end_addr || TRUE_NODE != header->is_node){
+    fprintf(stderr, "Invalid address\n");
+    return -1;
+  }
+  //  printf("Gets to here before failing! ptr: %p header: %p\n", ptr, header);
   //If I try to print header->size above, it fails there. For some reason, can't access header->size
   //Also, in our test case, header location SHOULD be equal to head location, but its NOT. Its off by 8.
   node_tf *footer = (void*)ptr + header->size; /* Footer of chunk prt is in */
