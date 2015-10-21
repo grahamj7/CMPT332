@@ -29,7 +29,7 @@ int M_INIT(int size){
   if (0 != rem)
     allocate_space = allocate_space + (16 - rem); /* make space to be alloc a multiple of 16 */
     
-  printf("allocating %d bytes of space\n", allocate_space);
+//  printf("allocating %d bytes of space\n", allocate_space);
   
   /* Call mmap to map this section of memory */
   head = mmap(NULL, allocate_space,PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
@@ -75,7 +75,7 @@ void *alloc(node_th *header, int size){
 
   /* Calculate footer, and save references to previous and next free memory chunks */
   footer = (void*)header + header->size + sizeof(node_th);
-  printf("Header: %p, size: %d, Footer: %p, size: \n", header, header->size, footer);
+//  printf("Header: %p, size: %d, Footer: %p, size: \n", header, header->size, footer);
   nexthead = header->next;
   prevfoot = footer->prev;
 
@@ -95,7 +95,7 @@ void *alloc(node_th *header, int size){
     }
   }
 
-  printf("PrevHead: %p, NextFoot: %p\n", prevhead, nextfoot);
+//  printf("PrevHead: %p, NextFoot: %p\n", prevhead, nextfoot);
 
   /* If size of space to be allocated fits into free chunk perfectly: */
   if (size == header->size){
@@ -199,7 +199,7 @@ void *M_ALLOC(int size){
 
 int M_FREE(void *ptr){
   node_th *header = (void*)ptr - sizeof(node_th); /* Header of chunk ptr is in */
-  printf("Gets to here before failing! ptr: %p header: %p\n", ptr, header);
+//  printf("Gets to here before failing! ptr: %p header: %p\n", ptr, header);
   //If I try to print header->size above, it fails there. For some reason, can't access header->size
   //Also, in our test case, header location SHOULD be equal to head location, but its NOT. Its off by 8.
   node_tf *footer = (void*)ptr + header->size; /* Footer of chunk prt is in */
@@ -223,13 +223,13 @@ int M_FREE(void *ptr){
   tail = header;
   tail->next = NULL;
    
-  /* Coalesce: add free chunks to free list 
+//  Coalesce: add free chunks to free list 
   node_tf *prevfoot = NULL, *nextfoot = NULL; // Footer of prev and next memory chunks 
   node_th *nexthead = NULL, *prevhead = NULL; // Header of next and prev memory chunks 
   
-  if (header != start_addr)
+  if (header != start_addr) // if header is at the beginning of our address space, there is no prev footer
     prevfoot = (void*)header - sizeof(node_tf);
-  if (footer != end_addr)
+  if (footer != end_addr)  // if footer is at the end of our address space, there is no next header
     nexthead = (void*)footer + sizeof(node_tf);
   
   if (NULL != prevfoot){
@@ -237,8 +237,10 @@ int M_FREE(void *ptr){
       prevhead = (void*)prevfoot - prevfoot->size - sizeof(node_th);
       prevhead->size = prevhead->size + header->size + sizeof(node_th) + sizeof(node_tf);
       footer->size = prevhead->size;
-      printf("footer-prev : %p, prev-foot-prev %p\n", footer->prev, prevfoot->prev);
       footer->prev = prevfoot->prev;
+      tail = prevhead;
+      tail->next = NULL;
+      header = prevhead;
     }
   }
   if (NULL != nexthead){
@@ -246,9 +248,12 @@ int M_FREE(void *ptr){
       nextfoot = (void*)nexthead + nexthead->size + sizeof(node_th);
       nextfoot->size = nextfoot->size + footer->size + sizeof(node_th) + sizeof(node_tf);
       header->size = nextfoot->size;
-      header->next = nexthead->next;
+      header->next = NULL;
+      if (head == nexthead){
+        head = header;
+      }
     }
-  }*/
+  }
   return 0;
 }
 
@@ -260,7 +265,6 @@ void M_DISPLAY(){
   while (NULL != cursor){
     if (FREE == cursor->is_alloc)
       fprintf(stdout, "\tptr: %p, size: %d\n", cursor, cursor->size);
- 
     cursor = cursor->next;
   }
   fprintf(stdout, "\n]\n");
@@ -279,7 +283,7 @@ int main(int argc, char **argv){
   void *ptr2 = M_ALLOC(64);
 
   printf("FREE!\n");
-  M_FREE(ptr1);
+  M_FREE(ptr2);
 
   printf("MALLOC!\n");
   void *ptr3 = M_ALLOC(32);
@@ -288,7 +292,7 @@ int main(int argc, char **argv){
   M_DISPLAY();
 
   printf("FREE!\n");
-  M_FREE(ptr2);
+  M_FREE(ptr1);
 
   printf("DISPLAY!\n");
   M_DISPLAY();
