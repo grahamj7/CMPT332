@@ -2,17 +2,18 @@
 #ifndef A2_3_HEADER
 #define A2_3_HEADER
 
-#define MAGIC_NUM 500
+#define ALLOCATED 1
+#define FREE 0
 
 typedef struct __node_th{
   int size;
-  int magic_num;
+  int is_alloc;
   struct __node_th *next;
 }node_th;
 
 typedef struct __node_tf{
   int size;
-  int magic_num;
+  int is_alloc;
   struct __node_tf *prev;
 }node_tf;
 
