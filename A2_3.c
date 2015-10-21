@@ -37,7 +37,7 @@ int M_INIT(int size){
   tail = head;
   
   node_tf *footer;
-  footer = (node_tf*) head + head->size + sizeof(node_th);
+  footer = (void*) head + head->size + sizeof(node_th);
   footer->size = head->size;
   footer->prev =  NULL;
   footer->magic_num = 0;
@@ -59,20 +59,20 @@ void *alloc(node_th *header, int size){
   node_tf *allocated_footer, *new_footer;
 
 
-  footer = ((node_tf*)(header) + header->size + sizeof(node_th));
+  footer = (void*)header + header->size + sizeof(node_th);
   printf("Header: %p, size: %d, Footer: %p, size: \n", header, header->size, footer);
   next = header->next;
   prev = footer->prev;
 
   if( NULL != prev) {
-    prevhead = (node_th*) prev - (prev->size) - sizeof(header);
+    prevhead = (void*) prev - (prev->size) - sizeof(header);
     if( MAGIC_NUM == prevhead->magic_num ) {// Double check not alloc
       return NULL;
     }
   }
   
   if( NULL != next) {
-    nextfoot = (node_tf*) next + sizeof(header) + next->size;
+    nextfoot = (void*) next + sizeof(header) + next->size;
     if( MAGIC_NUM == nextfoot->magic_num ){ // Double check not alloc
       return NULL;
     }
@@ -104,7 +104,7 @@ void *alloc(node_th *header, int size){
     new_footer->magic_num = 0;
     new_footer->prev = prev;
   
-    new_header = (node_th*) (header) + sizeof(node_th) + size + sizeof(node_tf);
+    new_header = (void*) header + sizeof(node_th) + size + sizeof(node_tf);
     new_header->magic_num = 0;
     new_header->size = new_footer->size;
     new_header->next = next;
@@ -115,7 +115,7 @@ void *alloc(node_th *header, int size){
 
 
     allocated_header = header;
-    allocated_footer = (node_tf*) (allocated_header) + sizeof(node_th) + size;
+    allocated_footer = (void*) allocated_header + sizeof(node_th) + size;
     allocated_header->next = NULL;
     allocated_footer->prev = NULL;
     allocated_header->magic_num = MAGIC_NUM;
@@ -186,8 +186,8 @@ void *M_ALLOC(int size){
 
 
 int M_FREE(void *ptr){
-  node_th *header = ptr - sizeof(node_th);
-  node_tf *footer = (node_tf*) ptr + header->size;
+  node_th *header = (void*)ptr - sizeof(node_th);
+  node_tf *footer = (void*)ptr + header->size;
   
   if (MAGIC_NUM != header->magic_num)
     return -1;
@@ -196,13 +196,15 @@ int M_FREE(void *ptr){
   footer->magic_num = 0;
   munmap(ptr, header->size);
   
+  //TODO: unmap header and footer that get deleted while coalescing
+  
   //add to freelist
   if (NULL == head){
     head = header;
     tail = header;
   } else {
     tail->next = header;
-    footer->prev = (node_tf*) tail + tail->size;
+    footer->prev = (void*)tail + tail->size;
 
     tail = header;
     tail->next = NULL;
@@ -213,9 +215,9 @@ int M_FREE(void *ptr){
   node_th *nexthead = NULL, *prevhead = NULL;
   
   if (header != start_addr)
-    prevfoot = header - sizeof(node_tf);
+    prevfoot = (void*)header - sizeof(node_tf);
   if (footer != end_addr)
-    nexthead = footer + sizeof(node_tf);
+    nexthead = (void*)footer + sizeof(node_tf);
   
   if (NULL == nexthead || NULL == prevfoot){
     fprintf(stderr, "Nexthead and prevfoot cannot be NULL!");
@@ -223,13 +225,13 @@ int M_FREE(void *ptr){
   }
 
   if (MAGIC_NUM != prevfoot->magic_num){
-    prevhead = prevfoot - prevfoot->size - sizeof(node_th);
+    prevhead = (void*)prevfoot - prevfoot->size - sizeof(node_th);
     prevhead->size = prevhead->size + header->size + sizeof(node_th) + sizeof(node_tf);
     footer->size = prevhead->size;
     footer->prev = prevfoot->prev;
   }
   if (MAGIC_NUM != nexthead->magic_num){
-    nextfoot = nexthead + nexthead->size + sizeof(node_th);
+    nextfoot = (void*)nexthead + nexthead->size + sizeof(node_th);
     nextfoot->size = nextfoot->size + footer->size + sizeof(node_th) + sizeof(node_tf);
     header->size = nextfoot->size;
     header->next = nexthead->next;
