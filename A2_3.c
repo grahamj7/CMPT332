@@ -43,6 +43,7 @@ int M_INIT(int size){
   head->size = size;
   head->next = NULL;
   head->is_alloc = FREE;
+  head->is_node = TRUE_NODE;
   tail = head;
   
   /* Set initial tail for entire mapped memory,
@@ -52,6 +53,7 @@ int M_INIT(int size){
   footer->size = head->size;
   footer->prev =  NULL;
   footer->is_alloc = FREE;
+  footer->is_node = 0;
   end_addr = footer;
 
   printf("Head/Tail: %p, next: %p, size: %d\n", head, head->next, head->size);
@@ -134,6 +136,7 @@ void *alloc(node_th *header, int size){
     free_header->is_alloc = FREE;
     free_header->size = free_footer->size;
     free_header->next = nexthead;
+    free_header->is_node = TRUE_NODE;
   
     /* Allocated header is old header; adjust fields accordingly */
     allocated_header = header;
@@ -144,6 +147,7 @@ void *alloc(node_th *header, int size){
     allocated_footer->is_alloc = ALLOCATED;
     allocated_header->size = size;
     allocated_footer->size = size;
+    allocated_footer->is_node = 0;
 
     /* Update tail to newly split free chunk if we were at the tail */
     if (NULL == nexthead){
@@ -246,6 +250,7 @@ int M_FREE(void *ptr){
       footer->prev = prevfoot->prev;
       tail = prevhead;
       tail->next = NULL;
+      header->is_node = 0;
       header = prevhead;
     }
   }
@@ -255,6 +260,7 @@ int M_FREE(void *ptr){
       nextfoot->size = nextfoot->size + footer->size + sizeof(node_th) + sizeof(node_tf);
       header->size = nextfoot->size;
       header->next = NULL;
+      nexthead->is_node = 0;
       if (head == nexthead){
         head = header;
       }
