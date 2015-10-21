@@ -187,6 +187,9 @@ void *M_ALLOC(int size){
 
 int M_FREE(void *ptr){
   node_th *header = (void*)ptr - sizeof(node_th);
+  printf("Gets to here before failing! ptr: %p header: %p\n", ptr, header);
+  //If I try to print header->size above, it fails there. For some reason, can't access header->size
+  //Also, in our test case, header location SHOULD be equal to head location, but its NOT. Its off by 8.
   node_tf *footer = (void*)ptr + header->size;
   
   if (MAGIC_NUM != header->magic_num)
@@ -265,23 +268,23 @@ int main(int argc, char **argv){
   printf("MALLOC!\n");
   void *ptr2 = M_ALLOC(64);
 
-//  printf("FREE!\n");
-//  M_FREE(ptr1);
+  printf("FREE!\n");
+  M_FREE(ptr1);
 
   printf("MALLOC!\n");
   void *ptr3 = M_ALLOC(32);
 
-//  printf("DISPLAY!\n");
-//  M_DISPLAY();
+  printf("DISPLAY!\n");
+  M_DISPLAY();
 
-//  printf("FREE!\n");
-//  M_FREE(ptr2);
+  printf("FREE!\n");
+  M_FREE(ptr2);
 
-//  printf("DISPLAY!\n");
-//  M_DISPLAY();
+  printf("DISPLAY!\n");
+  M_DISPLAY();
 
-//  printf("FREE!\n");
-//  M_FREE(ptr3);
+  printf("FREE!\n");
+  M_FREE(ptr3);
 
   printf("DISPLAY!\n");
   M_DISPLAY();
