@@ -1,7 +1,7 @@
 CC := gcc
 CCFLAGS := -Wall -Wextra -g
 
-all: clean run
+all: clean Test
 
 clean: 
 	@rm *.o* &> /dev/null || true
@@ -10,10 +10,6 @@ clean:
 	@rm *~ &> /dev/null || true
 	@rm A2_3 &> /dev/null || true
 	@rm [tT]est &> /dev/null || true
-
-run: Test
-	@echo ""
-	@Test
 
 Test: A2_3.c A2_3.h test.c
 	$(CC) $(CCFLAGS) -o Test A2_3.c A2_3.h test.c

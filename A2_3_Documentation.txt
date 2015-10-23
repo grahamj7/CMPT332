@@ -1,0 +1,253 @@
+CMPT 332 (Fall 2015)
+Assignment 2 - Question 3
+jhg257 - Jordaen Graham
+jlr247 - Jennifer Rospad
+
+========================
+
+Files included:
+
+A2_3.c - Contains implementation of M_INIT(), M_ALLOC(), M_FREE(), M_DISPLAY()
+          as required by assignment requirements.
+
+A2_3.h - Contains declarations of the above functions, definitions of header and
+          footer node structs, and constant definitions.
+          
+Makefile - Permits user to run "make" to compile. Run "./Test" afterwards to 
+            run the test and produce output indicating correct behaviour.
+
+test.c - Contains main function to test the three functions implemented in A2_3.c
+
+========================
+Current status of assignment: WORKING CORRECTLY
+
+According to our tests, memory is being correctly allocated in 16B chunks and
+freed and coalesced accordingly. See the following tests.
+
+========
+ TEST 1
+========
+
+With print statements, one of the tests we ran was for the following sequence:
+- initialize 1024B
+- allocate 128B
+- allocate 64B
+- free the 64B chunk
+- allocate 32B chunk
+- display free chunks
+- free the 128B chunk
+- display free chunks
+- free the 32B chunk
+- display free chunks
+
+
+And the output, correctly (addresses and values as expected), was:
+
+
+Starting Main:
+
+Overall Mem Head/Tail: 0x7fddfccd2000, Head->next: (nil), Head->size: 1024
+Overall Mem Footer: 0x7fddfccd2418, Footer->prev: (nil), Footer->size: 1024
+
+MALLOC 128B
+Alocated chunk's header: 0x7fddfccd2000, size: 128
+Allocated chunk's footer: 0x7fddfccd2098, size: 128
+Leftover free chunk's header: 0x7fddfccd20b0, size: 848
+Leftover free chunk's footer: 0x7fddfccd2418, size: 848
+
+MALLOC 64B
+Alocated chunk's header: 0x7fddfccd20b0, size: 64
+Allocated chunk's footer: 0x7fddfccd2108, size: 64
+Leftover free chunk's header: 0x7fddfccd2120, size: 736
+Leftover free chunk's footer: 0x7fddfccd2418, size: 736
+
+FREE the 64B chunk
+
+MALLOC 32B
+Alocated chunk's header: 0x7fddfccd20b0, size: 32
+Allocated chunk's footer: 0x7fddfccd20e8, size: 32
+Leftover free chunk's header: 0x7fddfccd2100, size: 768
+Leftover free chunk's footer: 0x7fddfccd2418, size: 768
+
+DISPLAY free chunks
+Free Chunks: [
+        ptr: 0x7fddfccd2100, size: 768
+]
+
+FREE the 128B chunk
+
+DISPLAY free chunks
+Free Chunks: [
+        ptr: 0x7fddfccd2100, size: 768
+        ptr: 0x7fddfccd2000, size: 128
+]
+
+FREE the 32B chunk
+
+DISPLAY free chunks
+Free Chunks: [
+        ptr: 0x7fddfccd2000, size: 1024
+]
+
+
+========
+ TEST 2
+========
+Running a similar test with sizes that aren't intervals of 16B. The functions 
+correctly rounded up the size of the allocated chunks to multiples of 16, and did
+allocation,freeing, and coalescing correctly:
+
+
+
+Starting Main (initalized with 1024B):
+
+Overall Mem Head/Tail: 0x7f6312a48000, Head->next: (nil), Head->size: 1024
+Overall Mem Footer: 0x7f6312a48418, Footer->prev: (nil), Footer->size: 1024
+
+MALLOC 200B
+Alocated chunk's header: 0x7f6312a48000, size: 208
+Allocated chunk's footer: 0x7f6312a480e8, size: 208
+Leftover free chunk's header: 0x7f6312a48100, size: 768
+Leftover free chunk's footer: 0x7f6312a48418, size: 768
+
+MALLOC 370B
+Alocated chunk's header: 0x7f6312a48100, size: 384
+Allocated chunk's footer: 0x7f6312a48298, size: 384
+Leftover free chunk's header: 0x7f6312a482b0, size: 336
+Leftover free chunk's footer: 0x7f6312a48418, size: 336
+
+FREE the 370B chunk
+
+MALLOC 15B
+Alocated chunk's header: 0x7f6312a48100, size: 16
+Allocated chunk's footer: 0x7f6312a48128, size: 16
+Leftover free chunk's header: 0x7f6312a48140, size: 704
+Leftover free chunk's footer: 0x7f6312a48418, size: 704
+
+DISPLAY free chunks
+Free Chunks: [
+        ptr: 0x7f6312a48140, size: 704
+]
+
+FREE the 200B chunk
+
+DISPLAY free chunks
+Free Chunks: [
+        ptr: 0x7f6312a48140, size: 704
+        ptr: 0x7f6312a48000, size: 208
+]
+
+FREE the 15B chunk
+
+DISPLAY free chunks
+Free Chunks: [
+        ptr: 0x7f6312a48000, size: 1024
+]
+
+
+========
+ TEST 3
+========
+Here is the case where an already freed chunk had free called on it. The free
+to 64B in test.c was repeated:
+
+  printf("\nFREE the 64B chunk\n");
+  if(-1 == M_FREE(ptr2)){
+    printf("Freeing 64B failed.\n");
+    return EXIT_FAILURE;
+  }
+    
+The when running ./Test, the output (correctly failing) was:
+
+
+Starting Main:
+
+Overall Mem Head/Tail: 0x7fe13ae3f000, Head->next: (nil), Head->size: 1072
+Overall Mem Footer: 0x7fe13ae3f448, Footer->prev: (nil), Footer->size: 1072
+
+MALLOC 128B
+Alocated chunk's header: 0x7fe13ae3f000, size: 128
+Allocated chunk's footer: 0x7fe13ae3f098, size: 128
+Leftover free chunk's header: 0x7fe13ae3f0b0, size: 896
+Leftover free chunk's footer: 0x7fe13ae3f448, size: 896
+
+MALLOC 64B
+Alocated chunk's header: 0x7fe13ae3f0b0, size: 64
+Allocated chunk's footer: 0x7fe13ae3f108, size: 64
+Leftover free chunk's header: 0x7fe13ae3f120, size: 784
+Leftover free chunk's footer: 0x7fe13ae3f448, size: 784
+
+FREE the 64B chunk
+
+FREE the 64B chunk
+Freeing 64B failed.
+
+
+========
+ TEST 4
+========
+Next, tested trying to allocate memory of an invalid size (first in context if
+INIT() then in MALLOC()):
+
+
+*** Output for testing invalid input to INIT was:
+
+
+Starting Main, trying to initialize -20 bytes:
+
+You entered an invalid memory size of -20
+M_INIT failed.
+
+
+
+*** Output for testing invalid input to MALLOC() was:
+
+Starting Main:
+
+Overall Mem Head/Tail: 0x7ff0d7703000, Head->next: (nil), Head->size: 1072
+Overall Mem Footer: 0x7ff0d7703448, Footer->prev: (nil), Footer->size: 1072
+
+MALLOC -85B
+You attempted to allocate an invalid size, -85
+MALLOC(-85) failed.
+
+
+========
+ TEST 5
+========
+Tested trying to allocate a memory chunk too large for the free memory. The output
+was as follows:
+
+
+Starting Main (initalized with 1024B):
+
+Overall Mem Head/Tail: 0x7fcead3d5000, Head->next: (nil), Head->size: 1024
+Overall Mem Footer: 0x7fcead3d5418, Footer->prev: (nil), Footer->size: 1024
+
+MALLOC 128B
+Alocated chunk's header: 0x7fcead3d5000, size: 128
+Allocated chunk's footer: 0x7fcead3d5098, size: 128
+Leftover free chunk's header: 0x7fcead3d50b0, size: 848
+Leftover free chunk's footer: 0x7fcead3d5418, size: 848
+
+MALLOC 900B
+Not enough free space for allocation request.
+MALLOC(900) failed.
+
+
+
+========
+ TEST 6
+========
+Tested trying to allocate a chunk larger than the memory being managed:
+
+
+Starting Main (initalized with 1024B):
+
+Overall Mem Head/Tail: 0x7ff06d826000, Head->next: (nil), Head->size: 1024
+Overall Mem Footer: 0x7ff06d826418, Footer->prev: (nil), Footer->size: 1024
+
+MALLOC 2000B
+Not enough free space for allocation request.
+MALLOC(2000) failed.
+
