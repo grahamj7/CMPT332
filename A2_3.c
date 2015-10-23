@@ -282,8 +282,8 @@ void M_DISPLAY(){
   fprintf(stdout, "\n]\n");
 }
 
-
-int main(int argc, char **argv){
+/*
+int main(){
   printf("\n\nStarting!\n\n\n\n");
 
   M_INIT(1024);
@@ -316,4 +316,4 @@ int main(int argc, char **argv){
   M_DISPLAY();
 
   return 0;
-}
+}*/
