@@ -25,7 +25,7 @@ test.o: test.c A2_3.h
 	$(CC) $(CCFLAGS) -c test.c A2_3.h
 
 test_library: library test.o A2_3.h
-	$(CC) $(CCFLAGS) -L`pwd` -lmem test.o A2_3.h -o test
+	$(CC) $(CCFLAGS) test.c -o test libmem.a
 
 library: A2_3.o
 	@ar -cq libmem.a A2_3.o
