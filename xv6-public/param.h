@@ -11,6 +11,6 @@
 #define LOGSIZE      (MAXOPBLOCKS*3)  // max data blocks in on-disk log
 #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
 #define FSSIZE       1000  // size of file system in blocks
-#define mtimes       100  // # times to run medium-priority process before switching to low-priority
-#define moveup       750  // # times to make scheduling decision before moving all proc to high priority
+#define mtimes       35  // # times to run medium-priority process before switching to low-priority
+#define moveup       100  // # times to make scheduling decision before moving all proc to high priority
 

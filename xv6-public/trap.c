@@ -55,11 +55,10 @@ trap(struct trapframe *tf)
       release(&tickslock);
     }
     
-    // Added random shit that we really hope works and doesn't fuck us over!!!
     if (proc != 0){
       proc->running = proc->running + 1;
-      //cprintf("Proc->running: %p, count: %d\n", proc, proc->running);
     }
+    
     lapiceoi();
     break;
   case T_IRQ0 + IRQ_IDE:

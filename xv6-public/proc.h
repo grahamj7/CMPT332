@@ -1,6 +1,11 @@
 // Segments in proc->gdt.
 #define NSEGS     7
 
+// Priority definitions
+#define HIGH	0
+#define MED		1
+#define LOW		2
+
 // Per-CPU state
 struct cpu {
   uchar id;                    // Local APIC ID; index into cpus[] below
@@ -66,9 +71,13 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  uint created;		       // Time the process was created (TIme in Ticks)
-  uint ended;		       // Time the process was ended   (Time in Ticks)
-  uint running;		       // Running time of the process  (Time in Ticks)
+  uint created;				   	// Time the process was created (Time in Ticks)
+  uint ended;		         	// Time the process was ended   (Time in Ticks)
+  uint running;		       	// Running time of the process  (Time in Ticks)
+  int priority;					 	// Priority list that proc is on (HIGH, MED, or LOW) 
+  struct proc *nextproc;	// Next proc in the same priority list
+  struct proc *prevproc;	// Prev proc in the same priority list
+  int t_med_run;					// Number of times process has run @ medium priority
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -76,4 +85,5 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
 

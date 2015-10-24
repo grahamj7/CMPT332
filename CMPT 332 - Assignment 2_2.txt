@@ -1,0 +1,616 @@
+CMPT 332 (Fall 2015)
+Assignment 2 - Question 1
+jhg257 - Jordaen Graham
+jlr247 - Jennifer Rospad
+
+========================
+
+Files edited beyond the edits made in question 1:
+
+param.h, proc.h, proc.c, sysfile.c, test2.c, Makefile
+  
+========================
+Details about what was edited in each file:
+
+param.h:
+  defined mtimes and moveup (L14-15)
+
+proc.h:
+  added priority definitions for HIGH, MED, and LOW (L4-7)
+  added priority, nextproc, lastproc and t_med_run to proc
+    struct (L77-80)
+
+proc.c:
+  Many changes, as this is where new scheduler is implemented
+  for this question. Changes can be found of following lines:
+  L14-21, 32-33, 39-45, 68, 131-133, 196-198;
+  L309-355 (section with new scheduler)
+
+sysfile.c:
+  added head and tail pointers for high, medium and low priority
+  queues, and time_since_moveup to ptable structure (L23-28)
+
+test2.c:
+  a completely new file to run more tests on our newly tweaked
+  version of xv6.
+
+Makefile:
+  added test2 under UPROGS in Makefile (L176)
+
+========================
+** What is working: **
+
+  Processes do add themselves to the correct priority lists, and are able
+  to be taken from the head of the queues for execution.
+  
+  xv6 will run as required in the qemu emulator, when make qemu-nox is
+  entered into the command line. Type "test1 <some positive int>" to run
+  test1.c, and "test2" to run test2.c.
+
+
+** Known issues: **
+
+  When a process is forked, the new process starts moving through the
+  queues before exec runs. So, for example, if we do the ls command,
+  sh forks. The new sh proc starts running through high, medium, and low
+  queues before the sh command is turned into an ls command using exec. So,
+  by the time the actual ls command starts running, it will no longer be in
+  the high priority list. (Not a big problem, but if you want the new
+  command to run right away, you will be waiting for a while).
+  
+  VERY occasionally, in final testing, it was noticed that running the command
+  test2 would have an exec fail if you tried to run it after it has already
+  been run (and completed) once in the current "session" of running xv6. If the
+  command was made again, it would work the next time. As the assignment is due
+  in an hour, there was no time to find the problem, but it seems to stem from
+  trying to run the command too quickly after the last time it was run in xv6.
+  
+  The run time for a child process in test2 is sometimes 0. There is no good
+  reason for it to be this way, but there is not time to fix it. It always
+  happens on quick parts of the program, so the calculation must be getting
+  missed to simplfied somehow on these runs.
+
+
+================================ 
+PERFORMANCE ANALYSIS USING TEST1
+
+Output from performance comparison between our scheduler and the original can be
+found in section at the end of this document labelled *** Appendix A ***.
+
+When comparing the schedulers' average turn-around and run times,
+the new scheduler was seen to be noticably faster than the original
+one. This is porbably due to the fact that the new scheduler does not
+have to cycle through the ptable looking for a runnable process. The 
+queues simply pass the next runnable proc from the top.
+
+It was noted that the values varied significantly between trials (the
+data is representative of this - outliers would've been discarded, but
+there was sucha  range it was hard to tell what was or was not an
+outlier), so this "speed up" is hard to quantify. The margin of error
+then, in such a comparison, is quite high here.
+
+
+================================
+PERFORMANCE ANALYSIS USING TEST2
+
+Output of the performance while using test2 can be found later in this document
+ina  section labelled *** Appendix B ***. It contains 4 test cases we refer to here.
+
+--- Comparing Cases A and D: ---
+  Looking at test2, the old scheduler seems to perform more quickly than the new one
+  (contradicting out previous test). This could be because with user input,
+  there is a lot more queueing and dequeueing than in test1. This is slowing the new
+  scheduler down, thus making it now slower than the original scheduler.
+
+--- Comparing Cases A and C: ---
+  Reducing the mtimes parameter in case C left the average turn around time the same,
+  but greatly increased the average run time (by a factor of ~2X).
+
+--- Comparing Cases B and C: ---
+   Reducing the moveup parameter did not really change average running time, but
+   it did increase the average turn around time somewhat. This is probably because 
+   the values are all switching queues more often; taking time to move up into the
+   high priority queue more often would increase turn around time.
+
+
+========================
+FINAL ANALYSIS OF SCHEDULER:
+
+Our scheduler is faster than the original, as long as you don't need to do a lot
+of interactive processes because it doesn't have to constanly scan through a list
+to find the next runnable process. Hence, the type of scheduler you would use 
+would depend on what kind of operations you plan on doing.
+
+Our scheduler would be better if we were not constantly acquiring and releasing
+a lock every time we need to add a process to a priority list. We just learned
+more about locks in class, so there is probably a better way to do this that we didn't
+know abotu when we first did this problem.
+
+
+======================== 
+Test output confirming scheduler was working after all the changes
+(including error cases) can be found in *** Appendix C ***.
+
+
+====================================================================================
+
+============================= APPENDIX A ===========================================
+
+====================================================================================
+
+
+======== OLD SCHEDULER: ========
+Running the old scheduler with N = 20 as input for test1:
+  Trial 1: Average Turn Around Time: 22.0, Average Run Time: 4.0
+  Trial 2: Average Turn Around Time: 17.0, Average Run Time: 4.0
+  Trial 3: Average Turn Around Time: 4.0, Average Run Time: 2.0 
+  Trial 4: Average Turn Around Time: 19.0, Average Run Time: 5.0 
+  ---> AVG: 15.5, 15
+
+Running the old scheduler with N = 450 as input for test1:
+  Trial 1: Average Turn Around Time: 9.0, Average Run Time: 4.0
+  Trial 2: Average Turn Around Time: 7.0, Average Run Time: 3.0
+  Trial 3: Average Turn Around Time: 17.0, Average Run Time: 10.0
+  Trial 4: Average Turn Around Time: 38.0, Average Run Time: 24.0 
+  --->AVG: 17.8, 10.3
+  
+
+Running the old scheduler with N = 7000 as input for test1:
+  Trial 1: Average Turn Around Time: 73.0, Average Run Time: 43.0
+  Trial 2: Average Turn Around Time: 160.0, Average Run Time: 63.0
+  Trial 3: Average Turn Around Time: 87.0, Average Run Time: 48.0
+  Trial 4: Average Turn Around Time: 101.0, Average Run Time: 60.0 
+  --->AVG: 105.3, 53.5
+
+
+======== NEW SCHEDULER: ========
+Running the new scheduler with N = 20 as input for test1:
+  Trial 1: Average Turn Around Time: 7.0, Average Run Time: 3.0
+  Trial 2: Average Turn Around Time: 7.0, Average Run Time: 2.0
+  Trial 3: Average Turn Around Time: 11.0, Average Run Time: 6.0
+  Trial 4: Average Turn Around Time: 11.0, Average Run Time: 6.0
+  --->AVG: 9, 4.3
+  
+Running the new scheduler with N = 450 as input for test1:
+  Trial 1: Average Turn Around Time: 9.0, Average Run Time: 5.0
+  Trial 2: Average Turn Around Time: 14.0, Average Run Time: 8.0
+  Trial 3: Average Turn Around Time: 9.0, Average Run Time: 5.0
+  Trial 4: Average Turn Around Time: 11.0, Average Run Time: 7.0
+  --->AVG: 10.8, 6.3
+  
+Running the new scheduler with N = 7000 as input for test1:
+  Trial 1: Average Turn Around Time: 73.0, Average Run Time: 42.0
+  Trial 2: Average Turn Around Time: 66.0, Average Run Time: 45.0
+  Trial 3: Average Turn Around Time: 71.0, Average Run Time: 48.0
+  Trial 4: Average Turn Around Time: 71.0, Average Run Time: 49.0
+  --->AVG:70.3, 46
+  
+  
+====================================================================================
+
+============================= APPENDIX B ===========================================
+
+====================================================================================
+
+
+CASE A: New scheduler running test2 (with N = 111 every time; mtimes = 35, moveup = 100):
+  Trial 1: Average Turn Around Time: 148.0, Average Run Time: 9.0
+  Trial 2: Average Turn Around Time: 162.0, Average Run Time: 18.0
+  Trial 3: Average Turn Around Time: 221.0, Average Run Time: 25.0
+  --->AVG: 177, 17.3
+
+CASE B: New scheduler running test2 (with N = 111 every time; mtimes = 5, moveup = 10):
+  Trial 1: Average Turn Around Time: 172.0, Average Run Time: 29.0
+  Trial 2: Average Turn Around Time: 190.0, Average Run Time: 26.0
+  Trial 3: Average Turn Around Time: 193.0, Average Run Time: 43.0
+  --->AVG: 185, 32.7
+  
+CASE C: New scheduler running test2 (with N = 111 every time; mtimes = 5, moveup = 100):
+  Trial 1: Average Turn Around Time: 164.0, Average Run Time: 31.0
+  Trial 2: Average Turn Around Time: 194.0, Average Run Time: 47.0
+  Trial 3: Average Turn Around Time: 175.0, Average Run Time: 26.0
+  --->AVG: 177.7, 34.7
+  
+CASE D: Old scheduler running test2 (with N = 111 every time):
+  Trial 1: Average Turn Around Time: 142.0, Average Run Time: 14.0
+  Trial 2: Average Turn Around Time: 138.0, Average Run Time: 7.0
+  Trial 3: Average Turn Around Time: 104.0, Average Run Time: 7.0
+  --->AVG: 128, 9.3
+
+
+====================================================================================
+
+============================= APPENDIX C ===========================================
+
+====================================================================================
+
+$ test1 lp
+Please enter an integer greater than zero. lp is not a valid N.
+
+
+=====
+
+
+$ test2 66
+Useage: test2 <no parameters>
+
+
+=====
+
+
+$ test2
+Give me a single positive N (of 10 digits or less)!: -5
+Enter integer > 0.
+Give me a single positive N (of 10 digits or less)!: y
+Enter integer > 0.
+
+
+=====
+
+
+$ ls   
+.              1 1 512
+..             1 1 512
+README         2 2 1972
+cat            2 3 13453
+echo           2 4 12550
+forktest       2 5 8274
+grep           2 6 15145
+init           2 7 13215
+kill           2 8 12702
+ln             2 9 12556
+ls             2 10 14936
+mkdir          2 11 12707
+rm             2 12 12684
+sh             2 13 23700
+stressfs       2 14 13410
+usertests      2 15 58717
+wc             2 16 13983
+zombie         2 17 12332
+test1          2 18 16423
+console        3 19 0
+
+
+=====
+
+
+$ echo hello!
+hello!
+
+
+=====
+
+
+$ test2
+Give me a single positive N (of 10 digits or less)!: 4
+Parent has stored the reult for child #0.
+Give me a single positive N (of 10 digits or less)!: 67
+Parent has stored the reult for child #1.
+Give me a single positive N (of 10 digits or less)!: 13
+Parent has stored the reult for child #2.
+Give me a single positive N (of 10 digits or less)!: 8
+Parent has stored the reult for child #3.
+Give me a single positive N (of 10 digits or less)!: 22
+Parent has stored the reult for child #4.
+Give me a single positive N (of 10 digits or less)!: 100
+Parent has stored the reult for child #5.
+Give me a single positive N (of 10 digits or less)!: 782
+Parent has stored the reult for child #6.
+Give me a single positive N (of 10 digits or less)!: 2
+Parent has stored the reult for child #7.
+Give me a single positive N (of 10 digits or less)!: 9
+Parent has stored the reult for child #8.
+Give me a single positive N (of 10 digits or less)!: 44
+Parent has stored the reult for child #9.
+Give me a single positive N (of 10 digits or less)!: 204
+Parent has stored the reult for child #10.
+Give me a single positive N (of 10 digits or less)!: 1
+Parent has stored the reult for child #11.
+Give me a single positive N (of 10 digits or less)!: 2
+Parent has stored the reult for child #12.
+Give me a single positive N (of 10 digits or less)!: 3
+Parent ha4s stored the reult for child #13.
+Give me a single positive N (of 10 digits or less)!: 58
+Parent has stored the reult for child #14.
+Give me a single positive N (of 10 digits or less)!: 8
+Parent has stored the reult for child #15.
+Give me a single positive N (of 10 digits or less)!: 9
+Parent has stored the reult for child #16.
+Give me a single positive N (of 10 digits or less)!: 35
+Parent has stored the reult for child #17.
+Give me a single positive N (of 10 digits or less)!: 7
+Parent has stored the reult for child #18.
+8Give me a single positive N (of 10 digits or less)!: 9
+Parent has stored the reult for child #19.
+For child 1: Turn Around Time: 179 Run Time: 9
+For child 2: Turn Around Time: 367 Run Time: 4
+For child 3: Turn Around Time: 173 Run Time: 19
+For child 4: Turn Around Time: 190 Run Time: 0
+For child 5: Turn Around Time: 104 Run Time: 2
+For child 6: Turn Around Time: 147 Run Time: 0
+For child 7: Turn Around Time: 348 Run Time: 120
+For child 8: Turn Around Time: 207 Run Time: 5
+For child 9: Turn Around Time: 105 Run Time: 10
+For child 10: Turn Around Time: 135 Run Time: 0
+For child 11: Turn Around Time: 529 Run Time: 114
+For child 12: Turn Around Time: 156 Run Time: 0
+For child 13: Turn Around Time: 185 Run Time: 5
+For child 14: Turn Around Time: 75 Run Time: 5
+For child 15: Turn Around Time: 108 Run Time: 20
+For child 16: Turn Around Time: 182 Run Time: 0
+For child 17: Turn Around Time: 107 Run Time: 8
+For child 18: Turn Around Time: 110 Run Time: 11
+For child 19: Turn Around Time: 268 Run Time: 19
+For child 20: Turn Around Time: 172 Run Time: 12
+
+Average Turn Around Time: 192.0, Average Run Time: 18.0
+
+
+=====
+
+
+$ test1 20
+The sum of the 1th sum of the 1th child is = 5.1
+The sum of the 2th sum of the 1th child is = 5.4
+The sum of the 3th sum of the 1th child is = 5.5
+The sum of the 4th sum of the 1th child is = 5.6
+The sum of the 5th sum of the 1th child is = 5.7
+The sum of the 6th sum of the 1th child is = 5.7
+The sum of the 7th sum of the 1th child is = 5.7
+The sum of the 8th sum of the 1th child is = 5.8
+The sum of the 9th sum of the 1th child is = 5.8
+The sum of the 10th sum of the 1th child is = 5.8
+The 1th sum of the parent is = 0.0
+
+The sum of the 1th sum of the 2th child is = 5.0
+The sum of the 2th sum of the 2th child is = 5.4
+The sum of the 3th sum of the 2th child is = 5.5
+The sum of the 4th sum of the 2th child is = 5.6
+The sum of the 5th sum of the 2th child is = 5.6
+The sum of the 6th sum of the 2th child is = 5.7
+The sum of the 7th sum of the 2th child is = 5.7
+The sum of the 8th sum of the 2th child is = 5.7
+The sum of the 9th sum of the 2th child is = 5.7
+The sum of the 10th sum of the 2th child is = 5.7
+The 2th sum of the parent is = 3.8
+
+The sum of the 1th sum of the 3th child is = 5.0
+The sum of the 2th sum of the 3th child is = 5.3
+The sum of the 3th sum of the 3th child is = 5.4
+The sum of the 4th sum of the 3th child is = 5.5
+The sum of the 5th sum of the 3th child is = 5.6
+The sum of the 6th sum of the 3th child is = 5.6
+The sum of the 7th sum of the 3th child is = 5.6
+The sum of the 8th sum of the 3th child is = 5.7
+The sum of the 9th sum of the 3th child is = 5.7
+The sum of the 10th sum of the 3th child is = 5.7
+The 3th sum of the parent is = 4.1
+
+The sum of the 1th sum of the 4th child is = 4.9
+The sum of the 2th sum of the 4th child is = 5.3
+The sum of the 3th sum of the 4th child is = 5.4
+The sum of the 4th sum of the 4th child is = 5.5
+The sum of the 5th sum of the 4th child is = 5.5
+The sum of the 6th sum of the 4th child is = 5.6
+The sum of the 7th sum of the 4th child is = 5.6
+The sum of the 8th sum of the 4th child is = 5.6
+The sum of the 9th sum of the 4th child is = 5.6
+The sum of the 10th sum of the 4th child is = 5.6
+The 4th sum of the parent is = 4.2
+
+The sum of the 1th sum of the 5th child is = 4.9
+The sum of the 2th sum of the 5th child is = 5.2
+The sum of the 3th sum of the 5th child is = 5.3
+The sum of the 4th sum of the 5th child is = 5.4
+The sum of the 5th sum of the 5th child is = 5.5
+The sum of the 6th sum of the 5th child is = 5.5
+The sum of the 7th sum of the 5th child is = 5.5
+The sum of the 8th sum of the 5th child is = 5.6
+The sum of the 9th sum of the 5th child is = 5.6
+The sum of the 10th sum of the 5th child is = 5.6
+The 5th sum of the parent is = 4.3
+
+The sum of the 1th sum of the 6th child is = 4.8
+The sum of the 2th sum of the 6th child is = 5.2
+The sum of the 3th sum of the 6th child is = 5.3
+The sum of the 4th sum of the 6th child is = 5.4
+The sum of the 5th sum of the 6th child is = 5.4
+The sum of the 6th sum of the 6th child is = 5.5
+The sum of the 7th sum of the 6th child is = 5.5
+The sum of the 8th sum of the 6th child is = 5.5
+The sum of the 9th sum of the 6th child is = 5.5
+The sum of the 10th sum of the 6th child is = 5.5
+The 6th sum of the parent is = 4.4
+
+The sum of the 1th sum of the 7th child is = 4.8
+The sum of the 2th sum of the 7th child is = 5.1
+The sum of the 3th sum of the 7th child is = 5.2
+The sum of the 4th sum of the 7th child is = 5.3
+The sum of the 5th sum of the 7th child is = 5.4
+The sum of the 6th sum of the 7th child is = 5.4
+The sum of the 7th sum of the 7th child is = 5.4
+The sum of the 8th sum of the 7th child is = 5.4
+The sum of the 9th sum of the 7th child is = 5.5
+The sum of the 10th sum of the 7th child is = 5.5
+The 7th sum of the parent is = 4.4
+
+The sum of the 1th sum of the 8th child is = 4.7
+The sum of the 2th sum of the 8th child is = 5.0
+The sum of the 3th sum of the 8th child is = 5.2
+The sum of the 4th sum of the 8th child is = 5.3
+The sum of the 5th sum of the 8th child is = 5.3
+The sum of the 6th sum of the 8th child is = 5.3
+The sum of the 7th sum of the 8th child is = 5.4
+The sum of the 8th sum of the 8th child is = 5.4
+The sum of the 9th sum of the 8th child is = 5.4
+The sum of the 10th sum of the 8th child is = 5.4
+The 8th sum of the parent is = 4.4
+
+The sum of the 1th sum of the 9th child is = 4.6
+The sum of the 2th sum of the 9th child is = 5.0
+The sum of the 3th sum of the 9th child is = 5.1
+The sum of the 4th sum of the 9th child is = 5.2
+The sum of the 5th sum of the 9th child is = 5.2
+The sum of the 6th sum of the 9th child is = 5.3
+The sum of the 7th sum of the 9th child is = 5.3
+The sum of the 8th sum of the 9th child is = 5.3
+The sum of the 9th sum of the 9th child is = 5.3
+The sum of the 10th sum of the 9th child is = 5.3
+The 9th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 10th child is = 4.6
+The sum of the 2th sum of the 10th child is = 4.9
+The sum of the 3th sum of the 10th child is = 5.0
+The sum of the 4th sum of the 10th child is = 5.1
+The sum of the 5th sum of the 10th child is = 5.2
+The sum of the 6th sum of the 10th child is = 5.2
+The sum of the 7th sum of the 10th child is = 5.2
+The sum of the 8th sum of the 10th child is = 5.2
+The sum of the 9th sum of the 10th child is = 5.3
+The sum of the 10th sum of the 10th child is = 5.3
+The 10th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 11th child is = 4.5
+The sum of the 2th sum of the 11th child is = 4.8
+The sum of the 3th sum of the 11th child is = 5.0
+The sum of the 4th sum of the 11th child is = 5.0
+The sum of the 5th sum of the 11th child is = 5.1
+The sum of the 6th sum of the 11th child is = 5.1
+The sum of the 7th sum of the 11th child is = 5.1
+The sum of the 8th sum of the 11th child is = 5.2
+The sum of the 9th sum of the 11th child is = 5.2
+The sum of the 10th sum of the 11th child is = 5.2
+The 11th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 12th child is = 4.4
+The sum of the 2th sum of the 12th child is = 4.7
+The sum of the 3th sum of the 12th child is = 4.9
+The sum of the 4th sum of the 12th child is = 4.9
+The sum of the 5th sum of the 12th child is = 5.0
+The sum of the 6th sum of the 12th child is = 5.0
+The sum of the 7th sum of the 12th child is = 5.1
+The sum of the 8th sum of the 12th child is = 5.1
+The sum of the 9th sum of the 12th child is = 5.1
+The sum of the 10th sum of the 12th child is = 5.1
+The 12th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 13th child is = 4.3
+The sum of the 2th sum of the 13th child is = 4.6
+The sum of the 3th sum of the 13th child is = 4.8
+The sum of the 4th sum of the 13th child is = 4.9
+The sum of the 5th sum of the 13th child is = 4.9
+The sum of the 6th sum of the 13th child is = 4.9
+The sum of the 7th sum of the 13th child is = 5.0
+The sum of the 8th sum of the 13th child is = 5.0
+The sum of the 9th sum of the 13th child is = 5.0
+The sum of the 10th sum of the 13th child is = 5.0
+The 13th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 14th child is = 4.2
+The sum of the 2th sum of the 14th child is = 4.5
+The sum of the 3th sum of the 14th child is = 4.7
+The sum of the 4th sum of the 14th child is = 4.7
+The sum of the 5th sum of the 14th child is = 4.8
+The sum of the 6th sum of the 14th child is = 4.8
+The sum of the 7th sum of the 14th child is = 4.9
+The sum of the 8th sum of the 14th child is = 4.9
+The sum of the 9th sum of the 14th child is = 4.9
+The sum of the 10th sum of the 14th child is = 4.9
+The 14th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 15th child is = 4.1
+The sum of the 2th sum of the 15th child is = 4.4
+The sum of the 3th sum of the 15th child is = 4.5
+The sum of the 4th sum of the 15th child is = 4.6
+The sum of the 5th sum of the 15th child is = 4.7
+The sum of the 6th sum of the 15th child is = 4.7
+The sum of the 7th sum of the 15th child is = 4.7
+The sum of the 8th sum of the 15th child is = 4.8
+The sum of the 9th sum of the 15th child is = 4.8
+The sum of the 10th sum of the 15th child is = 4.8
+The 15th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 16th child is = 3.9
+The sum of the 2th sum of the 16th child is = 4.3
+The sum of the 3th sum of the 16th child is = 4.4
+The sum of the 4th sum of the 16th child is = 4.5
+The sum of the 5th sum of the 16th child is = 4.5
+The sum of the 6th sum of the 16th child is = 4.6
+The sum of the 7th sum of the 16th child is = 4.6
+The sum of the 8th sum of the 16th child is = 4.6
+The sum of the 9th sum of the 16th child is = 4.6
+The sum of the 10th sum of the 16th child is = 4.7
+The 16th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 17th child is = 3.8
+The sum of the 2th sum of the 17th child is = 4.1
+The sum of the 3th sum of the 17th child is = 4.2
+The sum of the 4th sum of the 17th child is = 4.3
+The sum of the 5th sum of the 17th child is = 4.4
+The sum of the 6th sum of the 17th child is = 4.4
+The sum of the 7th sum of the 17th child is = 4.4
+The sum of the 8th sum of the 17th child is = 4.5
+The sum of the 9th sum of the 17th child is = 4.5
+The sum of the 10th sum of the 17th child is = 4.5
+The 17th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 18th child is = 3.6
+The sum of the 2th sum of the 18th child is = 3.9
+The sum of the 3th sum of the 18th child is = 4.0
+The sum of the 4th sum of the 18th child is = 4.1
+The sum of the 5th sum of the 18th child is = 4.2
+The sum of the 6th sum of the 18th child is = 4.2
+The sum of the 7th sum of the 18th child is = 4.2
+The sum of the 8th sum of the 18th child is = 4.3
+The sum of the 9th sum of the 18th child is = 4.3
+The sum of the 10th sum of the 18th child is = 4.3
+The 18th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 19th child is = 3.3
+The sum of the 2th sum of the 19th child is = 3.6
+The sum of the 3th sum of the 19th child is = 3.8
+The sum of the 4th sum of the 19th child is = 3.9
+The sum of the 5th sum of the 19th child is = 3.9
+The sum of the 6th sum of the 19th child is = 3.9
+The sum of the 7th sum of the 19th child is = 4.0
+The sum of the 8th sum of the 19th child is = 4.0
+The sum of the 9th sum of the 19th child is = 4.0
+The sum of the 10th sum of the 19th child is = 4.0
+The 19th sum of the parent is = 4.5
+
+The sum of the 1th sum of the 20th child is = 3.0
+The sum of the 2th sum of the 20th child is = 3.3
+The sum of the 3th sum of the 20th child is = 3.4
+The sum of the 4th sum of the 20th child is = 3.5
+The sum of the 5th sum of the 20th child is = 3.5
+The sum of the 6th sum of the 20th child is = 3.6
+The sum of the 7th sum of the 20th child is = 3.6
+The sum of the 8th sum of the 20th child is = 3.6
+The sum of the 9th sum of the 20th child is = 3.6
+The sum of the 10th sum of the 20th child is = 3.7
+The 20th sum of the parent is = 4.5
+
+For child 1: Turn Around Time: 3 Run Time: 1
+For child 2: Turn Around Time: 4 Run Time: 2
+For child 3: Turn Around Time: 2 Run Time: 1
+For child 4: Turn Around Time: 2 Run Time: 2
+For child 5: Turn Around Time: 3 Run Time: 1
+For child 6: Turn Around Time: 88 Run Time: 67
+For child 7: Turn Around Time: 4 Run Time: 3
+For child 8: Turn Around Time: 2 Run Time: 2
+For child 9: Turn Around Time: 3 Run Time: 1
+For child 10: Turn Around Time: 3 Run Time: 2
+For child 11: Turn Around Time: 4 Run Time: 2
+For child 12: Turn Around Time: 4 Run Time: 2
+For child 13: Turn Around Time: 2 Run Time: 2
+For child 14: Turn Around Time: 3 Run Time: 2
+For child 15: Turn Around Time: 6 Run Time: 2
+For child 16: Turn Around Time: 4 Run Time: 3
+For child 17: Turn Around Time: 3 Run Time: 1
+For child 18: Turn Around Time: 4 Run Time: 1
+For child 19: Turn Around Time: 4 Run Time: 1
+For child 20: Turn Around Time: 152 Run Time: 1
+
+Average Turn Around Time: 15.0, Average Run Time: 4.0
+
+
