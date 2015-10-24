@@ -11,14 +11,11 @@ main (int argc, char *argv[]){
   double sum_child = 0.0, C = 0.0;
   int int_part, first_dig;
 
-  /* Check that user did not enter more than one argument for N 
-  for (i=2; i < argc; i++)
-    printf(1, "Unused argv[%d]: %s\n", i, (char*)argv[i]);
-  N = atoi(argv[1]); // defaults to 0 if non-integer
-  if( 0 >= N ){
-    printf(1, "Please enter an integer greater than zero. %s is not a valid N.\n", argv[1]);
+  /* Check that user did not enter more than one argument for N */
+  if(argc > 1){
+    printf(1, "Useage: test2 <no parameters>\n");
     exit();
-  }*/
+  }
     
   
   /* Create 20 forks (j holds value of 20) */
@@ -34,11 +31,11 @@ main (int argc, char *argv[]){
         num_str_in = gets(num_str_in, max);
         N = atoi(num_str_in); // defaults to 0 if non-integer
         if( 0 >= N )
-          printf(1, "Enter int > 0. %s is not a valid N.\n", argv[1]);
+          printf(1, "Enter valid integer > 0.\n");
         else
           break;     
       }
-        
+      /* Do some calculation to use time */ 
       for (k = 1; k <= 10; k++){
         C = 1.0/k;
         sum_child = 0.0;

@@ -318,19 +318,16 @@ scheduler(void)
     acquire(&ptable.lock);
     if( 0 != ptable.highhead ){ // Grab high priority proc if available
       p = ptable.highhead;
-      //cprintf("Executing high proc %s (PID %d)\n", p->name, p->pid);
       ptable.highhead = ptable.highhead->nextproc;
       foundproc = 1;
     }
     else if( 0!= ptable.medhead ){ // Grab med priority proc if available
       p = ptable.medhead;
-      //cprintf("Executing med proc %s (PID %d) mcount: %d\n", p->name, p->pid, p->t_med_run);
       ptable.medhead = ptable.medhead->nextproc;
       foundproc = 1;
     }
     else if ( 0 != ptable.lowhead ){ // Grab low priority proc if available
       p = ptable.lowhead;
-      //cprintf("Executing low proc %s (PID %d)\n", p->name, p->pid);
       ptable.lowhead = ptable.lowhead->nextproc;
       foundproc = 1;
     }
@@ -344,14 +341,14 @@ scheduler(void)
       proc = 0;
       ptable.time_since_moveup = ptable.time_since_moveup + 1;
       if( moveup == ptable.time_since_moveup ){
-        moveup_procs();\
+        moveup_procs();
       }
     }
     release(&ptable.lock);
   }
   
   
-  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference):
+  /* THE FOLLOWING IS THE xv6 SCHEDULER (saved for reference and testing):
   struct proc *p;
 
   for(;;){
