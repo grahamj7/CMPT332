@@ -10,36 +10,78 @@
 pthread_mutex_t DA_mutex, DB_mutex, bays_avail_mutex, bays_mutex;
 int *DA_count, *DB_count, *bays_avail, *num_bays;
 
+pthread_cond_t Cond_A, Cond_B;
+
 void DA_start(){
+    printf("A: GET DB\n");
+    pthread_mutex_lock(&DB_mutex);
+    printf("A: GET DA\n");
     pthread_mutex_lock(&DA_mutex);
+    printf("DA_start, DB_count: %d\n", *DB_count);
+    if ( 0 != *DB_count){
+        printf("Waiting for DA\n");
+        pthread_mutex_unlock(&DA_mutex);
+        pthread_cond_wait(&Cond_B, &DB_mutex);
+        pthread_mutex_lock(&DA_mutex);
+    }
     *DA_count = *DA_count + 1;
+    pthread_mutex_unlock(&DB_mutex);
+    printf("A: REL DB\n");
+        printf("Wash DA\n");
     if (*DA_count == 1)
         pthread_mutex_lock(&bays_mutex);
     pthread_mutex_unlock(&DA_mutex);
-}
+    printf("A: REL DA\n");}
 
 void DB_start(){
+    printf("B: GET DB\n");
     pthread_mutex_lock(&DB_mutex);
+    printf("B: GET DA\n");
+    pthread_mutex_lock(&DA_mutex);
+    printf("DB_start, DA_count: %d\n", *DA_count);
+    if ( 0 != *DA_count){
+        printf("Waiting for DA\n");
+        pthread_mutex_unlock(&DB_mutex);
+        pthread_cond_wait(&Cond_A, &DA_mutex);
+        pthread_mutex_lock(&DB_mutex);
+    }
     *DB_count = *DB_count + 1;
+    pthread_mutex_unlock(&DA_mutex);
+    printf("B: REL DA\n");
+    printf("Wash DB\n");
     if (*DB_count == 1)
         pthread_mutex_lock(&bays_mutex);
     pthread_mutex_unlock(&DB_mutex);
+    printf("B: REL DB\n");
 }
 
 void DA_done(){
+    printf("DA_DONE\n");
     pthread_mutex_lock(&DA_mutex);
     *DA_count = *DA_count - 1;
-    if (*DA_count == 0)
+    printf("Done DA: %d\n", *DA_count);
+    if (*DA_count == 0){
+        pthread_cond_signal(&Cond_A);
+        printf("DA signal\n");
         pthread_mutex_unlock(&bays_mutex);
+    }
     pthread_mutex_unlock(&DA_mutex);
+    printf("Finished DA\n");
 }
 
 void DB_done(){
+    printf("DB_DONE\n");
     pthread_mutex_lock(&DB_mutex);
     *DB_count = *DB_count - 1;
-    if (*DB_count == 0)
+    printf("Done DB: %d\n", *DB_count);
+    
+    if (*DB_count == 0){
+        pthread_cond_signal(&Cond_B);
+        printf("DB signal\n");
         pthread_mutex_unlock(&bays_mutex);
+    }
     pthread_mutex_unlock(&DB_mutex);
+    printf("Finished DB\n");
 }
 
 
@@ -100,6 +142,19 @@ int dogwash_init(int numbays) {
         return -1;
     }
 
+    rv = pthread_cond_init(&Cond_A, NULL);
+    if (0 != rv){
+        printf("ERROR: Out of memory. Could not allocate Cond_A.\n");
+        return -1;
+    }
+
+    rv = pthread_cond_init(&Cond_B, NULL);
+    if (0 != rv){
+        printf("ERROR: Out of memory. Could not allocate Cond_B.\n");
+        return -1;
+    }
+    pthread_cond_signal(&Cond_A);
+    pthread_cond_signal(&Cond_B);
     return 0;
 }
 
@@ -117,7 +172,8 @@ int newdog(dogtype dog){
         DA_start();
     else if (DB == dog)
         DB_start();
-
+    
+    printf("Find bay for dog %s\n", DA == dog ? "A" : DB == dog ? "B" : "O");
     pthread_mutex_lock(&bays_avail_mutex);
     while (0 == *bays_avail){
         pthread_mutex_unlock(&bays_avail_mutex);
@@ -186,6 +242,17 @@ int dogwash_done() {
         return -1;
     }
     
+    rv = pthread_cond_destroy(&Cond_A);
+    if (0 != rv){
+        printf("Failed to destroy Cond_A.\n");
+        return -1;
+    }
+    rv = pthread_cond_destroy(&Cond_B);
+    if (0 != rv){
+        printf("Failed to destroy Cond_B.\n");
+        return -1;
+    }
+
     return 0;
 }
 
