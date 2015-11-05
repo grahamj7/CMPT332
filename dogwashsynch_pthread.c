@@ -1,9 +1,8 @@
-#include <jmorecfg.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "dogwashsynch.h"
+#include "dogwashsynch_pthread.h"
 #include <pthread.h>
 
 
@@ -195,18 +194,26 @@ int dogwash_done() {
 
 int main(int argc, char **argv) {
 
-    
-    int rc, i, numBays;
-    int numDogs;
+
+    int rc, i, numBays=0, numDogs=0;
     pthread_t dogs[12];
     int r;
     dogtype doggy;
 
-    numDogs = 12;
-    numBays = 5;
+
+
+    if (2 <= argc)
+        numBays = atoi(argv[1]);
+    else if (3 <= argc)
+        numDogs = atoi(argv[2]);
+
+    if (0 == numBays)
+        numBays = 5;
+    if (0 == numDogs)
+        numDogs = 12;
 
     printf("\tWelcome to our dog wash! \nWe currently have %d bays available today\n\n", numBays);
-    
+
     if(0 != dogwash_init(numBays)){
       printf("Error in initializing dogwash with %i bays.\n", numBays);
       return -1;
@@ -243,18 +250,3 @@ int main(int argc, char **argv) {
     }
     
     
-    
-    
-/*
-
-
-
-
-
-
-
-
-
-
-
-*/

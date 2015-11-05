@@ -3,20 +3,26 @@
 CC := gcc
 CCFLAGS := -Wall -Wextra -pthread -g
 
-all: clean Test
+all: clean
 
 clean: 
 	@rm *.o* &> /dev/null || true
 	@rm *~ &> /dev/null || true
-	@rm [tT]est &> /dev/null || true
+	@rm [tT]est* &> /dev/null || true
 
-Test: dogwashsynch.c dogwashsynch.h
-	$(CC) $(CCFLAGS) -o Test dogwashsynch.c
-	./Test
+Test_Pthread: dogwashsynch_pthread.c dogwashsynch_pthread.h
+	$(CC) $(CCFLAGS) -o Test_Pthread dogwashsynch_pthread.c
+	./Test_Pthread
 
-dogwashsynch.o: dogwashsynch.c dogwashsynch.h
-	$(CC) $(CCFLAGS) -c dogwashsynch.c
+dogwashsynch_pthread.o: dogwashsynch_pthread.c dogwashsynch_pthread.h
+	$(CC) $(CCFLAGS) -c dogwashsynch_pthread.c
 
-test.o: dogwashsynch.c dogwashsynch.h
-	$(CC) $(CCFLAGS) -c dogwashsynch.c
+
+Test_Sem: dogwashsynch_sem.c dogwashsynch_sem.h
+	$(CC) $(CCFLAGS) -o Test_Sem dogwashsynch_sem.c
+	./Test_Sem
+
+dogwashsynch_sem.o: dogwashsynch_sem.c dogwashsynch_sem.h
+	$(CC) $(CCFLAGS) -c dogwashsynch_sem.c
+
 
