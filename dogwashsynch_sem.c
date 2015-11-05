@@ -6,49 +6,44 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-/*
-pthread_mutex_t DA_mutex, DB_mutex, bays_avail_mutex, bays_mutex;
-int *DA_count, *DB_count, *bays_avail, *num_bays;
-*/
-
 
 sem_t DA_sem, DB_sem, Bays_sem, Bays_avail_sem;
-int *num_bays;
+int *num_bays, *DA_count, *DB_count;
 
 
-/*
+
 void DA_start(){
-    pthread_mutex_lock(&DA_mutex);
+    sem_wait(&DA_sem);
     *DA_count = *DA_count + 1;
     if (*DA_count == 1)
-        pthread_mutex_lock(&bays_mutex);
-    pthread_mutex_unlock(&DA_mutex);
+        sem_wait(&Bays_sem);
+    sem_post(&DA_sem);
 }
 
 void DB_start(){
-    pthread_mutex_lock(&DB_mutex);
+    sem_wait(&DB_sem);
     *DB_count = *DB_count + 1;
     if (*DB_count == 1)
-        pthread_mutex_lock(&bays_mutex);
-    pthread_mutex_unlock(&DB_mutex);
+        sem_wait(&Bays_sem);
+    sem_post(&DB_sem);
 }
 
 void DA_done(){
-    pthread_mutex_lock(&DA_mutex);
+    sem_wait(&DA_sem);
     *DA_count = *DA_count - 1;
     if (*DA_count == 0)
-        pthread_mutex_unlock(&bays_mutex);
-    pthread_mutex_unlock(&DA_mutex);
+        sem_post(&Bays_sem);
+    sem_post(&DA_sem);
 }
 
 void DB_done(){
-    pthread_mutex_lock(&DB_mutex);
+    sem_wait(&DB_sem);
     *DB_count = *DB_count - 1;
     if (*DB_count == 0)
-        pthread_mutex_unlock(&bays_mutex);
-    pthread_mutex_unlock(&DB_mutex);
+        sem_post(&Bays_sem);
+    sem_post(&DB_sem);
 }
-*/
+
 
 
 int dogwash_init(int numbays) {
@@ -206,63 +201,47 @@ int dogwash_done() {
 
 
 int newdog(dogtype dog){
-    int val;
+    int value;
     printf("Dog, %s Arrived\n", DA == dog ? "A" : DB == dog ? "B" : "O");
 
     if (DA == dog) {
         printf("Start DA\n");
-//        DA_start();
+        DA_start();
     }
     else if (DB == dog) {
         printf("Start DB\n");
-//        DB_start();
+        DB_start();
     }
 
-    sem_getvalue(&Bays_avail_sem, &val);
-    printf("Wait for avail bay %d\n", val);
+    sem_getvalue(&Bays_avail_sem, &value);
+    printf("Wait for avail bay %d\n", value);
 
     sem_wait(&Bays_avail_sem);
 
     printf("Found avail bay\n");
-    sem_getvalue(&Bays_avail_sem, &val);
-
-/*
-    pthread_mutex_lock(&bays_avail_mutex);
-    while (0 == *bays_avail){
-        pthread_mutex_unlock(&bays_avail_mutex);
-        pthread_mutex_lock(&bays_avail_mutex);
-    }
-    if (0 > *bays_avail)
-        printf("Negative bays avail");
-    *bays_avail = *bays_avail - 1;
-    pthread_mutex_unlock(&bays_avail_mutex);
-*/
-
-    printf("Dog, %s_%d washing. Bay Remaining: %d\n\n", DA == dog ? "A" : DB == dog ? "B" : "O", 0, val); //DA == dog ? *DA_count : DB == dog ? *DB_count : 0, *bays_avail);
+    sem_getvalue(&Bays_avail_sem, &value);
+    printf("Dog, %s_%d washing. Bay Remaining: %d\n\n", DA == dog ? "A" : DB == dog ? "B" : "O", 0, value);
 
     return 0;
 }
 
 int dogdone(dogtype dog) {
-    printf("Dog: %s Done\n\n", DA == dog ? "A" : DB == dog ? "B" : "O");
+    int value;
+    sem_getvalue(&Bays_avail_sem, &value);
+    printf("Dog: %s Done\nBays avail: %d\n\n", DA == dog ? "A" : DB == dog ? "B" : "O", value);
 
     sem_post(&Bays_avail_sem);
 
-/*
-    pthread_mutex_lock(&bays_avail_mutex);
-    *bays_avail = *bays_avail + 1;
-    pthread_mutex_unlock(&bays_avail_mutex);
-*/
-
     if ( DA == dog ){
         printf("DA DONE\n");
-//        DA_done();
+        DA_done();
     }else if ( DB == dog ){
         printf("DB DONE\n");
-//        DB_done();
+        DB_done();
     }
 
-    printf("Finished dog %s\n\n", DA == dog ? "A" : DB == dog ? "B" : "O");
+    sem_getvalue(&Bays_avail_sem, &value);
+    printf("Finished dog %s\nBays avail: %d\n\n", DA == dog ? "A" : DB == dog ? "B" : "O", value);
     pthread_exit(NULL);
     return 0;
 }
