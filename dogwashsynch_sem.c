@@ -13,22 +13,29 @@ int *num_bays, *DA_count, *DB_count;
 
 
 void DA_start(){
+    printf("DA start: %d\n", *DA_count);
     sem_wait(&DA_sem);
+    printf("got DA_sem\n");
     *DA_count = *DA_count + 1;
     if (*DA_count == 1)
         sem_wait(&Bays_sem);
+    printf("Rel DA_sem\n");
     sem_post(&DA_sem);
 }
 
 void DB_start(){
+    printf("DB start: %d\n", *DB_count);
     sem_wait(&DB_sem);
+    printf("Got DB_sem\n");
     *DB_count = *DB_count + 1;
     if (*DB_count == 1)
         sem_wait(&Bays_sem);
+    printf("Rel DB_sem\n");
     sem_post(&DB_sem);
 }
 
 void DA_done(){
+    printf("DA end: %d\n", *DB_count);
     sem_wait(&DA_sem);
     *DA_count = *DA_count - 1;
     if (*DA_count == 0)
@@ -37,6 +44,7 @@ void DA_done(){
 }
 
 void DB_done(){
+    printf("DB end: %d\n", *DB_count);
     sem_wait(&DB_sem);
     *DB_count = *DB_count - 1;
     if (*DB_count == 0)
@@ -51,7 +59,7 @@ int dogwash_init(int numbays) {
 
     srand((unsigned int) time(NULL));
 
-/*
+
     DA_count = (int *)malloc(sizeof(int));
     if (0 == DA_count){
         printf("ERROR: Out of memory. Could not allocate DA_count.\n");
@@ -67,16 +75,6 @@ int dogwash_init(int numbays) {
     }
     *DB_count = 0;
 
-
-    bays_avail = (int *)malloc(sizeof(int));
-    if (0 == bays_avail){
-        printf("ERROR: Out of memory. Could not allocate bays_avail.\n");
-        return -1;
-    }
-    *bays_avail = numbays;
-*/
-
-
     num_bays = (int *)malloc(sizeof(int));
     if (0 == num_bays){
         printf("ERROR: Out of memory. Could not allocate num_bays.\n");
@@ -85,7 +83,7 @@ int dogwash_init(int numbays) {
     *num_bays = numbays;
 
 
-    rv = sem_init(&Bays_sem, 0, 0);
+    rv = sem_init(&Bays_sem, 0, 1);
     if (0 != rv){
         printf("ERROR: Out of memory. Could not allocate Bays_sem.\n");
         return -1;
@@ -95,40 +93,17 @@ int dogwash_init(int numbays) {
         printf("ERROR: Out of memory. Could not allocate Bays_avail_sem.\n");
         return -1;
     }
-    rv = sem_init(&DA_sem, 0, 0);
+    rv = sem_init(&DA_sem, 0, 1);
     if (0 != rv){
         printf("ERROR: Out of memory. Could not allocate DA_sem.\n");
         return -1;
     }
-    rv = sem_init(&DB_sem, 0, 0);
+    rv = sem_init(&DB_sem, 0, 1);
     if (0 != rv){
         printf("ERROR: Out of memory. Could not allocate DB_sem.\n");
         return -1;
     }
 
-
-/*
-    rv = pthread_mutex_init(&bays_mutex, NULL);
-    if (0 != rv){
-        printf("ERROR: Out of memory. Could not allocate bays_mutex.\n");
-        return -1;
-    }
-    rv = pthread_mutex_init(&bays_avail_mutex, NULL);
-    if (0 != rv){
-        printf("ERROR: Out of memory. Could not allocate bays_avail_mutex.\n");
-        return -1;
-    }
-    rv = pthread_mutex_init(&DA_mutex, NULL);
-    if (0 != rv){
-        printf("ERROR: Out of memory. Could not allocate DA_mutex.\n");
-        return -1;
-    }
-    rv = pthread_mutex_init(&DB_mutex, NULL);
-    if (0 != rv){
-        printf("ERROR: Out of memory. Could not allocate DB_mutex.\n");
-        return -1;
-    }
-*/
 
     return 0;
 }
@@ -136,16 +111,11 @@ int dogwash_init(int numbays) {
 int dogwash_done() {
     int rv;
 
-    /*
     free(DA_count);
     DA_count = NULL;
 
     free(DB_count);
     DB_count = NULL;
-
-    free(bays_avail);
-    bays_avail = NULL;
-*/
 
     free(num_bays);
     num_bays = NULL;
@@ -172,29 +142,6 @@ int dogwash_done() {
     }
 
 
-/*
-    rv = pthread_mutex_destroy(&bays_mutex);
-    if (0 != rv){
-        printf("Failed to destroy bays_mutex.\n");
-        return -1;
-    }
-    rv = pthread_mutex_destroy(&bays_avail_mutex);
-    if (0 != rv){
-        printf("Failed to destroy bays_avail_mutex.\n");
-        return -1;
-    }
-    rv = pthread_mutex_destroy(&DA_mutex);
-    if (0 != rv){
-        printf("Failed to destroy DA_mutex.\n");
-        return -1;
-    }
-    rv = pthread_mutex_destroy(&DB_mutex);
-    if (0 != rv){
-        printf("Failed to destroy DB_mutex.\n");
-        return -1;
-    }
-*/
-
     return 0;
 }
 
@@ -205,11 +152,9 @@ int newdog(dogtype dog){
     printf("Dog, %s Arrived\n", DA == dog ? "A" : DB == dog ? "B" : "O");
 
     if (DA == dog) {
-        printf("Start DA\n");
         DA_start();
     }
     else if (DB == dog) {
-        printf("Start DB\n");
         DB_start();
     }
 
@@ -233,10 +178,8 @@ int dogdone(dogtype dog) {
     sem_post(&Bays_avail_sem);
 
     if ( DA == dog ){
-        printf("DA DONE\n");
         DA_done();
     }else if ( DB == dog ){
-        printf("DB DONE\n");
         DB_done();
     }
 
