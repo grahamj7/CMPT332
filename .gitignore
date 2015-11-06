@@ -7,4 +7,5 @@ _*
 *.out
 *kernel
 *mkfs
+Test*
 
