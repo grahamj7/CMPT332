@@ -6,40 +6,72 @@
 #include <pthread.h>
 
 
-sem_t DA_sem, DB_sem, Bays_sem, Bays_avail_sem;
+sem_t DA_sem, DB_sem, Bays_sem, Bays_avail_sem, Wait_sem;
 int *num_bays, *DA_count, *DB_count;
 
 
 
 void DA_start(){
+    printf("Try Wait Sem\n");
+    sem_wait(&Wait_sem);
+    printf("Got Wait Sem\n");
+    printf("Try DA_Sem\n");
     sem_wait(&DA_sem);
+    printf("Got DA_Sem\n");
     *DA_count = *DA_count + 1;
-    if (*DA_count == 1)
+    if (*DA_count == 1){
+        printf("Try Bays_Sem\n");
         sem_wait(&Bays_sem);
+        printf("Got Bays_Sem\n");
+    }
+    printf("Post Wait\n");
+    sem_post(&Wait_sem);
+    printf("Post DA\n");
     sem_post(&DA_sem);
 }
 
 void DB_start(){
+    printf("Try Wait Sem\n");
+    sem_wait(&Wait_sem);
+    printf("Got Wait Sem\n");
+    printf("Try DB_Sem\n");
     sem_wait(&DB_sem);
+    printf("Got DB_Sem\n");
     *DB_count = *DB_count + 1;
-    if (*DB_count == 1)
+    if (*DB_count == 1){
+        printf("Try Bays_Sem\n");
         sem_wait(&Bays_sem);
+        printf("Got Bays_Sem\n");
+    }
+    printf("Post Wait\n");
+    sem_post(&Wait_sem);
+    printf("Post DB\n");
     sem_post(&DB_sem);
 }
 
 void DA_done(){
+    printf("D: Try DA_Sem\n");
     sem_wait(&DA_sem);
+    printf("D: Got DA_Sem\n");
     *DA_count = *DA_count - 1;
-    if (*DA_count == 0)
+    if (*DA_count == 0){
+        printf("D: Post Bays_Sem\n");
         sem_post(&Bays_sem);
+    }
+    printf("D: Post DA_Sem\n");
     sem_post(&DA_sem);
 }
 
 void DB_done(){
+    printf("D: Try DB_Sem\n");
     sem_wait(&DB_sem);
+    printf("D: Got DB_Sem\n");
     *DB_count = *DB_count - 1;
-    if (*DB_count == 0)
+    if (*DB_count == 0){
+        printf("D: Post Bays_Sem\n");
         sem_post(&Bays_sem);
+    }
+    printf("D: Post DB_Sem\n");
     sem_post(&DB_sem);
 }
 
@@ -97,6 +129,11 @@ int dogwash_init(int numbays) {
         return -1;
     }
 
+    rv = sem_init(&Wait_sem, 0, 1);
+    if (0 != rv){
+        fprintf(stderr, "ERROR: Out of memory. Could not allocate Wait_sem.\n");
+        return -1;
+    }
 
     return 0;
 }
@@ -133,6 +170,11 @@ int dogwash_done() {
     rv = sem_destroy(&DB_sem);
     if (0 != rv){
         fprintf(stderr, "Failed to close DB_sem.\n");
+        return -1;
+    }
+    rv = sem_destroy(&Wait_sem);
+    if (0 != rv){
+        fprintf(stderr, "Failed to close Wait_sem.\n");
         return -1;
     }
 
