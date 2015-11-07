@@ -12,66 +12,42 @@ int *num_bays, *DA_count, *DB_count;
 
 
 void DA_start(){
-    printf("Try Wait Sem\n");
     sem_wait(&Wait_sem);
-    printf("Got Wait Sem\n");
-    printf("Try DA_Sem\n");
     sem_wait(&DA_sem);
-    printf("Got DA_Sem\n");
     *DA_count = *DA_count + 1;
     if (*DA_count == 1){
-        printf("Try Bays_Sem\n");
         sem_wait(&Bays_sem);
-        printf("Got Bays_Sem\n");
     }
-    printf("Post Wait\n");
     sem_post(&Wait_sem);
-    printf("Post DA\n");
     sem_post(&DA_sem);
 }
 
 void DB_start(){
-    printf("Try Wait Sem\n");
     sem_wait(&Wait_sem);
-    printf("Got Wait Sem\n");
-    printf("Try DB_Sem\n");
     sem_wait(&DB_sem);
-    printf("Got DB_Sem\n");
     *DB_count = *DB_count + 1;
     if (*DB_count == 1){
-        printf("Try Bays_Sem\n");
         sem_wait(&Bays_sem);
-        printf("Got Bays_Sem\n");
     }
-    printf("Post Wait\n");
     sem_post(&Wait_sem);
-    printf("Post DB\n");
     sem_post(&DB_sem);
 }
 
 void DA_done(){
-    printf("D: Try DA_Sem\n");
     sem_wait(&DA_sem);
-    printf("D: Got DA_Sem\n");
     *DA_count = *DA_count - 1;
     if (*DA_count == 0){
-        printf("D: Post Bays_Sem\n");
         sem_post(&Bays_sem);
     }
-    printf("D: Post DA_Sem\n");
     sem_post(&DA_sem);
 }
 
 void DB_done(){
-    printf("D: Try DB_Sem\n");
     sem_wait(&DB_sem);
-    printf("D: Got DB_Sem\n");
     *DB_count = *DB_count - 1;
     if (*DB_count == 0){
-        printf("D: Post Bays_Sem\n");
         sem_post(&Bays_sem);
     }
-    printf("D: Post DB_Sem\n");
     sem_post(&DB_sem);
 }
 
