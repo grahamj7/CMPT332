@@ -4,11 +4,9 @@
 #include "dogwashsynch_pthread.h"
 #include <pthread.h>
 
-
+pthread_cond_t cond;
 pthread_mutex_t DA_mutex, DB_mutex, bays_avail_mutex, bays_mutex, wait_mutex;
 int *DA_count, *DB_count, *bays_avail, *num_bays;
-
-
 
 void DA_start(){
 	pthread_mutex_lock(&wait_mutex);
@@ -54,7 +52,13 @@ int dogwash_init(int numbays) {
     printf("Pthread dogwash init\n");
 
     srand(time(NULL));
-        
+	
+	rv = pthread_cond_init(&cond, NULL);
+	if (0 != rv){
+        fprintf(stderr, "ERROR: Out of memory. Could not allocate cond.\n");
+        return -1;
+    }
+	
     DA_count = (int *)malloc(sizeof(int));
     if (0 == DA_count){
         fprintf(stderr, "ERROR: Out of memory. Could not allocate DA_count.\n");
@@ -77,7 +81,7 @@ int dogwash_init(int numbays) {
         return -1;
     }
     *bays_avail = numbays;
-    
+
     num_bays = (int *)malloc(sizeof(int));
     if (0 == num_bays){
         fprintf(stderr, "ERROR: Out of memory. Could not allocate num_bays.\n");
@@ -119,16 +123,12 @@ int newdog(dogtype dog){
         DB_start();
 
     pthread_mutex_lock(&bays_avail_mutex);
-    while (0 == *bays_avail){
-        pthread_mutex_unlock(&bays_avail_mutex);
-        pthread_mutex_lock(&bays_avail_mutex);
-    }
-    if (0 > *bays_avail)
-        fprintf(stderr, "Negative bays avail");
+	while(0 == *bays_avail)	{
+		pthread_cond_wait(&cond, &bays_avail_mutex); /* wait for signal from condition variable */
+	}
     *bays_avail = *bays_avail - 1;
     printf("\nDog, %s washing.\nBays Remaining: %d\n\n", DA == dog ? "A" : DB == dog ? "B" : "O", *bays_avail);
     pthread_mutex_unlock(&bays_avail_mutex);
-        
 
     return 0;
 }
@@ -139,6 +139,7 @@ int dogdone(dogtype dog) {
     pthread_mutex_lock(&bays_avail_mutex);
     *bays_avail = *bays_avail + 1;
     printf("\nFinished dog %s.\nBays avail: %d\n\n", DA == dog ? "A" : DB == dog ? "B" : "O", *bays_avail);
+	pthread_cond_signal(&cond);  //wake up waiting thread with condition variable
     pthread_mutex_unlock(&bays_avail_mutex);    
 
     if ( DA == dog ){
@@ -154,6 +155,12 @@ int dogdone(dogtype dog) {
 int dogwash_done() {
     int rv;
     printf("Pthread dogwash done\n");
+
+    rv = pthread_cond_destroy(&cond);
+    if (0 != rv){
+        fprintf(stderr, "Failed to destroy cond.\n");
+        return -1;
+    }
 
     free(DA_count);
     DA_count = NULL;

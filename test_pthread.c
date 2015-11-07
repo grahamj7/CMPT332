@@ -75,6 +75,7 @@ int test_DA_starve(){
 
     rc = destroy();
     printf("Done Washing Dogs\n");
+	return rc;
 }
 
 int test_DB_starve(){
@@ -107,6 +108,7 @@ int test_DB_starve(){
 
     rc = destroy();
     printf("Done Washing Dogs\n");
+	return rc;
 }
 
 int test_rand_order(){
