@@ -5,24 +5,28 @@
 #include <pthread.h>
 
 
-pthread_mutex_t DA_mutex, DB_mutex, bays_avail_mutex, bays_mutex;
+pthread_mutex_t DA_mutex, DB_mutex, bays_avail_mutex, bays_mutex, wait_mutex;
 int *DA_count, *DB_count, *bays_avail, *num_bays;
 
 
 
 void DA_start(){
+	pthread_mutex_lock(&wait_mutex);
     pthread_mutex_lock(&DA_mutex);
     *DA_count = *DA_count + 1;
     if (*DA_count == 1)
         pthread_mutex_lock(&bays_mutex);
+    pthread_mutex_unlock(&wait_mutex);
     pthread_mutex_unlock(&DA_mutex);
 }
 
 void DB_start(){
+    pthread_mutex_lock(&wait_mutex);
     pthread_mutex_lock(&DB_mutex);
     *DB_count = *DB_count + 1;
     if (*DB_count == 1)
         pthread_mutex_lock(&bays_mutex);
+    pthread_mutex_unlock(&wait_mutex);
     pthread_mutex_unlock(&DB_mutex);
 }
 

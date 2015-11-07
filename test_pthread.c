@@ -57,7 +57,7 @@ int test_DA_starve(){
     
     for (i = 0; i < numDogs; i++) {
         doggy = DB;
-        if (((i+1) % 5) == 0){doggy = DA;}
+        if (((i+1) % 4) == 0){doggy = DA;}
         rc = pthread_create(&dog_threads[i], NULL, dog_func, (void *)doggy);
         if (rc){
             fprintf(stderr, "ERROR; return code from pthread_create() is %d\n", rc);
@@ -89,7 +89,7 @@ int test_DB_starve(){
     
     for (i = 0; i < numDogs; i++) {
         doggy = DA;
-        if (((i+1) % 5) == 0){doggy = DB;}
+        if (((i+1) % 4) == 0){doggy = DB;}
         rc = pthread_create(&dog_threads[i], NULL, dog_func, (void *)doggy);
         if (rc){
             fprintf(stderr, "ERROR; return code from pthread_create() is %d\n", rc);
