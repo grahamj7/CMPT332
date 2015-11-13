@@ -13,6 +13,7 @@
 #include "fs.h"
 #include "file.h"
 #include "fcntl.h"
+#include "tweet.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -440,3 +441,70 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+// "tweet" a 140 character message with a 10 character tag
+// Will block until able to tweet
+int
+sys_bput(void)
+{
+    char *tag;
+    char *msg;
+
+    if((argstr(0, &tag) < 0) ||(argstr(1, &msg) < 0))
+        return -1;
+    
+    //cprintf("In sysfile.c, sys_bput received: tag: %s, msg: %s\n", tag, msg);
+
+    return t_bput(tag, msg);
+}
+
+// like bput but returns immediately if unable to tweet
+int
+sys_put(void)
+{
+    char *tag;
+    char *msg;
+    tag = 0;
+    msg = 0;
+
+    if((argstr(0, &tag) < 0) || (argstr(1, &msg) < 0))
+        return -1;
+    
+    //cprintf("In sysfile.c, sys_put received: tag: %s, msg: %s\n", tag, msg);
+    return t_put(tag, msg);
+}
+
+// reads a tweet with matching tag and removes it from system
+// copying it into buf. Block until able to do so
+int
+sys_bget(void)
+{
+    char *tag;
+    char *buffer;
+    tag = 0;
+    buffer = 0;
+    
+    if((argstr(0, &tag) < 0)||(argstr(1, &buffer) < 0))
+        return -1;
+    
+    //cprintf("In sysfile.c, sys_bget received: tag: %s, buffer: %s\n", tag, buffer);
+    return t_bget(tag, buffer);
+}
+
+// like bget but returns immediately if cannot find tweet with
+// matching tag
+int
+sys_get(void)
+{ 
+    char *tag;
+    char *buffer;
+    tag = 0;
+    buffer = 0;
+    
+    if((argstr(0, &tag) < 0)||(argstr(1, &buffer) < 0))
+        return -1;
+
+    //cprintf("In sysfile.c, sys_get received: tag: %s, buffer: %s\n", tag, buffer);
+    return t_get(tag, buffer);
+}
+
