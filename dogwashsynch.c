@@ -88,6 +88,12 @@ void DB_done(){
 int dogwash_init(int numbays) {
     int rv;
     
+    /* Check numBays */
+    if(0 >= numbays){
+        printf("The number of bays must be a positive integer.\n");
+        return -1;
+    }
+
     /* Initialize condition signaller */
 	rv = pthread_cond_init(&cond, NULL);
 	if (0 != rv){
