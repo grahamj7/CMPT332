@@ -1,0 +1,2487 @@
+========================================
+CMPT 332 - Fall 2015
+Assignment 3, Question 2
+
+Jordaen Graham - jhg257
+Jennifer Rospad - jlr247
+
+File: Documentation.txt
+========================================
+
+Files included in the submission:
+
+-> Makefile
+-> dogwashsynch.c
+-> dogwashsynch.h
+-> test_pthread.c
+
+To test:
+1) Run "make"
+2) Run "Test_Pthread <number of bays> <number of dogs>
+
+The test program will print out messages as dogs arrive, and start and finish
+washing. It will also inform the tester of when DA or DB dogs are or are not
+allowed into a bay to wash.
+
+The test program runs three different instances of the dogwash system:
+1) A dogwash with a random assorment of dogs of DA, DB, and DO types
+2) A dogwash that will have more DB dogs than DA's to test that starvation
+    does not occur.
+3) A dogwash that will have more DA dogs than DB's to test that starvation
+    does not occur.
+
+Successes:
+As you can see in the output below, the dogwash system takes in dogs and
+processes them according to the rules of the assignment.
+
+Limitations:
+DO types dogs process much faster and therefore get to wash with less wait
+time. This is not quite fair, but because we need to deal with exclusion for
+DA and DB type dogs, we have been unable to avoid it.
+
+=============================================================
+Test output for 3 cases:
+
+1) Small number of bays (3); large number of dogs (30)
+2) Large number of bays (10); large number of dogs (30)
+3) Reasonable sizes for both (bays = 5; dogs = 18)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+           TEST 1 (bays = 3; dogs = 30)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+$ Test_Pthread 3 30
+
+
+******* Testing dogs of random type *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 3 bays available today
+
+===============================================================
+Dog, B Arrived
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 1
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 0
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, O Arrived
+Dog, O Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, O Arrived
+Dog, B Arrived
+Dog, O Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, O Arrived
+Dog, O Arrived
+Dog, O Arrived
+Dog, O Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+
+Finished dog B.
+Bays avail: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog O.
+Bays avail: 2
+
+
+Finished dog O.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+
+Dog, O washing.
+Bays Remaining: 2
+
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, O washing.
+Bays Remaining: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Finished dog O.
+Bays avail: 2
+
+
+Dog, O washing.
+Bays Remaining: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog O.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+******* Testing to ensure we do not starve DA dogs *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 3 bays available today
+
+===============================================================
+Dog, B Arrived
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 1
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 0
+
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, O Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, O Arrived
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Dog, O washing.
+Bays Remaining: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Finished dog O.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Dog, B washing.
+Bays Remaining: 1
+
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog B.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+******* Testing to ensure we do not starve DB dogs *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 3 bays available today
+
+===============================================================
+Dog, A Arrived
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+Dog, A Arrived
+
+Dog, A washing.
+Bays Remaining: 1
+
+Dog, A Arrived
+
+Dog, A washing.
+Bays Remaining: 0
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, O Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, O Arrived
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Dog, O washing.
+Bays Remaining: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+======= DA dogs done -- DB dogs may now enter =======
+
+Dog, O washing.
+Bays Remaining: 1
+
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+======= DB dogs done -- DA dogs may now enter =======
+
+Finished dog O.
+Bays avail: 3
+
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Dog, A washing.
+Bays Remaining: 0
+
+
+Finished dog A.
+Bays avail: 1
+
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+======= DA dogs done -- DB dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+           TEST 2 (bays = 10; dogs = 30)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Test_Pthread 10 30
+
+
+******* Testing dogs of random type *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 10 bays available today
+
+===============================================================
+Dog, B Arrived
+======= DB dogs in the bay -- no DA dogs may enter =======
+Dog, A Arrived
+Dog, O Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, O Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 9
+
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 8
+
+Dog, A Arrived
+
+Dog, O washing.
+Bays Remaining: 7
+
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 6
+
+Dog, B Arrived
+Dog, O Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 5
+
+Dog, A Arrived
+
+Dog, O washing.
+Bays Remaining: 4
+
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 3
+
+Dog, O Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 2
+
+Dog, B Arrived
+
+Dog, O washing.
+Bays Remaining: 1
+
+Dog, B Arrived
+Dog, B Arrived
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Finished dog B.
+Bays avail: 2
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 1
+
+
+Finished dog O.
+Bays avail: 2
+
+
+Finished dog O.
+Bays avail: 3
+
+
+Finished dog O.
+Bays avail: 4
+
+
+Finished dog O.
+Bays avail: 5
+
+
+Finished dog O.
+Bays avail: 6
+
+
+Finished dog O.
+Bays avail: 7
+
+
+Finished dog O.
+Bays avail: 8
+
+
+Finished dog O.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+******* Testing to ensure we do not starve DA dogs *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 10 bays available today
+
+===============================================================
+Dog, B Arrived
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 8
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 7
+
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 6
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 5
+
+
+Finished dog B.
+Bays avail: 6
+
+
+Finished dog B.
+Bays avail: 7
+
+
+Finished dog O.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Finished dog O.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Dog, B washing.
+Bays Remaining: 7
+
+
+Finished dog B.
+Bays avail: 8
+
+
+Finished dog B.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+******* Testing to ensure we do not starve DB dogs *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 10 bays available today
+
+===============================================================
+Dog, A Arrived
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+Dog, A Arrived
+
+Dog, A washing.
+Bays Remaining: 8
+
+Dog, A Arrived
+
+Dog, A washing.
+Bays Remaining: 7
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 6
+
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 5
+
+
+Finished dog A.
+Bays avail: 6
+
+
+Finished dog A.
+Bays avail: 7
+
+
+Finished dog O.
+Bays avail: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 8
+
+
+Finished dog O.
+Bays avail: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Dog, A washing.
+Bays Remaining: 7
+
+
+Finished dog A.
+Bays avail: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Dog, A washing.
+Bays Remaining: 7
+
+
+Finished dog A.
+Bays avail: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Dog, A washing.
+Bays Remaining: 7
+
+
+Finished dog A.
+Bays avail: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Dog, A washing.
+Bays Remaining: 7
+
+
+Finished dog A.
+Bays avail: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Dog, A washing.
+Bays Remaining: 8
+
+
+Dog, A washing.
+Bays Remaining: 7
+
+
+Finished dog A.
+Bays avail: 8
+
+
+Finished dog A.
+Bays avail: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 9
+
+
+Finished dog B.
+Bays avail: 10
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 9
+
+
+Finished dog A.
+Bays avail: 10
+
+======= DA dogs done -- DB dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+           TEST 3 (bays = 5; dogs = 18)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Test_Pthread 5 18
+
+
+******* Testing dogs of random type *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 5 bays available today
+
+===============================================================
+Dog, B Arrived
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 3
+
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+
+Dog, B washing.
+Bays Remaining: 2
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 1
+
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 0
+
+Dog, O Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+
+Finished dog B.
+Bays avail: 1
+
+
+Dog, O washing.
+Bays Remaining: 0
+
+
+Finished dog O.
+Bays avail: 1
+
+
+Finished dog O.
+Bays avail: 2
+
+
+Finished dog O.
+Bays avail: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 3
+
+
+Finished dog O.
+Bays avail: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Dog, A washing.
+Bays Remaining: 3
+
+
+Finished dog A.
+Bays avail: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+******* Testing to ensure we do not starve DA dogs *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 5 bays available today
+
+===============================================================
+Dog, B Arrived
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 3
+
+Dog, B Arrived
+
+Dog, B washing.
+Bays Remaining: 2
+
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 1
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, B Arrived
+
+Finished dog B.
+Bays avail: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+
+Finished dog O.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Dog, B washing.
+Bays Remaining: 2
+
+
+Finished dog B.
+Bays avail: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Finished dog B.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
+
+******* Testing to ensure we do not starve DB dogs *******
+===============================================================
+	Welcome to our dog wash! 
+We currently have 5 bays available today
+
+===============================================================
+Dog, A Arrived
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+Dog, A Arrived
+
+Dog, A washing.
+Bays Remaining: 3
+
+Dog, A Arrived
+
+Dog, A washing.
+Bays Remaining: 2
+
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, O Arrived
+
+Dog, O washing.
+Bays Remaining: 1
+
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, A Arrived
+Dog, B Arrived
+Dog, A Arrived
+Dog, A Arrived
+
+Finished dog A.
+Bays avail: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+
+Finished dog A.
+Bays avail: 4
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 3
+
+
+Finished dog O.
+Bays avail: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Dog, A washing.
+Bays Remaining: 3
+
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+
+Finished dog A.
+Bays avail: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Dog, A washing.
+Bays Remaining: 3
+
+
+Finished dog A.
+Bays avail: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Dog, A washing.
+Bays Remaining: 3
+
+
+Dog, A washing.
+Bays Remaining: 2
+
+
+Finished dog A.
+Bays avail: 3
+
+
+Finished dog A.
+Bays avail: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+======= DB dogs in the bay -- no DA dogs may enter =======
+
+Dog, B washing.
+Bays Remaining: 4
+
+
+Finished dog B.
+Bays avail: 5
+
+======= DB dogs done -- DA dogs may now enter =======
+======= DA dogs in the bay -- no DB dogs may enter =======
+
+Dog, A washing.
+Bays Remaining: 4
+
+
+Dog, A washing.
+Bays Remaining: 3
+
+
+Finished dog A.
+Bays avail: 4
+
+
+Finished dog A.
+Bays avail: 5
+
+======= DA dogs done -- DB dogs may now enter =======
+Pthread dogwash done
+Done Washing Dogs
+
