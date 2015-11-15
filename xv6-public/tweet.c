@@ -115,9 +115,12 @@ int t_bget(char *tag, char *buf){
 
 // like bget but returns immediately if cannot find tweet with matching tag
 int t_get(char *tag, char *buf){
+    //cprintf("In tweet.c, t_get() received: %s, The buffer: %s\n\n", tag, buf);
+    return 0;
+}
+
+void t_print_table(void){
     int i, j, n;
-    //buf = "This buf was returned from t_get.\0";
-    cprintf("In tweet.c, t_bget() received: %s, The buffer: %s\n\n", tag, buf);
     
     for(i = 0; i < maxtweettotal; i++){
         j = 0;
@@ -130,7 +133,5 @@ int t_get(char *tag, char *buf){
             j++;
         }
     }
-
-    //cprintf("In tweet.c, t_get() received: %s, The buffer: %s\n\n", tag, buf);
-    return 0;
 }
+

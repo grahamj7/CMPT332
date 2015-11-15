@@ -102,6 +102,7 @@ extern int sys_bput(void);
 extern int sys_put(void);
 extern int sys_bget(void);
 extern int sys_get(void);
+extern int sys_printtweettable(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -129,6 +130,7 @@ static int (*syscalls[])(void) = {
 [SYS_put]     sys_put,
 [SYS_bget]    sys_bget,
 [SYS_get]     sys_get,
+[SYS_printtweettable] sys_printtweettable,
 };
 
 void

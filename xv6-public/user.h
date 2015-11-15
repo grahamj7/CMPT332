@@ -27,6 +27,7 @@ int bput(char*, char*);
 int put(char*, char*);
 int bget(char*, char*);
 int get(char*, char*);
+int printtweettable(void);
 
 // ulib.c
 int stat(char*, struct stat*);

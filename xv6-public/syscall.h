@@ -24,3 +24,4 @@
 #define SYS_put    23
 #define SYS_bget   24
 #define SYS_get    25
+#define SYS_printtweettable 26

@@ -32,5 +32,5 @@ int t_bput(char*, char*);
 int t_put(char*, char*);
 int t_bget(char*, char*);
 int t_get(char*, char*);
-void print_tweets(void);
+void t_print_table(void);
 

@@ -508,3 +508,11 @@ sys_get(void)
     return t_get(tag, buffer);
 }
 
+// used for printing the tweet table contents for testing
+int
+sys_printtweettable(void)
+{
+    t_print_table();
+    return 0;
+}
+

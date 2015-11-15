@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
         exit();
     }*/
     
+    printtweettable();
+
     char *test_tag = "tag 4     ";
     k = bget(test_tag, buffer);
     if(0 != k){
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]) {
         exit();
     }
     
-
+    printtweettable();
 
     /* printf(1, "Inside testtweets.c: mytag = %s, message = %s, ret_tag = %s, buffer = %s\n", mytag, message, ret_tag, buffer);
     printf(1, "Returned to testtweets.c: bput: %d, put: %d, bget: %d, get: %d.\n", i, j, k, l);*/
