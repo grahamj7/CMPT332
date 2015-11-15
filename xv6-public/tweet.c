@@ -96,8 +96,27 @@ int t_put(char *tag, char *message){
 // reads a tweet with matching tag and removes it from system copying it into buf.
 // Block until able to do so
 int t_bget(char *tag, char *buf){
+    int hsh, n;
+
+    hsh = hash(tag);
+    acquire(&tweet_table.tag_list[hsh].taglock);
+    n = tweet_table.tag_list[hsh].numtweets;
+    if(0 == n){
+        /* Case of no msg with this tag; release lock and try again */
+        release(&tweet_table.tag_list[hsh].taglock);
+        return t_bget(tag, buf);
+    } else {
+        cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
+        tweet_table.tag_list[hsh].numtweets = n - 1;
+    }
+    release(&tweet_table.tag_list[hsh].taglock);
+    return 0;
+}
+
+// like bget but returns immediately if cannot find tweet with matching tag
+int t_get(char *tag, char *buf){
     int i, j, n;
-    //buf = "This buf was returned from t_bget.\0";
+    //buf = "This buf was returned from t_get.\0";
     cprintf("In tweet.c, t_bget() received: %s, The buffer: %s\n\n", tag, buf);
     
     for(i = 0; i < maxtweettotal; i++){
@@ -111,12 +130,7 @@ int t_bget(char *tag, char *buf){
             j++;
         }
     }
-    return 0;
-}
 
-// like bget but returns immediately if cannot find tweet with matching tag
-int t_get(char *tag, char *buf){
-    //buf = "This buf was returned from t_bget.\0";
     //cprintf("In tweet.c, t_get() received: %s, The buffer: %s\n\n", tag, buf);
     return 0;
 }

@@ -3,22 +3,11 @@
 #include "user.h"
 
 int main(int argc, char *argv[]) {
-    int i,/* j,*/ k, /*l,*/ m;
-    
-    char *ret_tag;
-    char *buffer;
-   /* char *mytag;
-    char *message;*/
+    int i, k, l, m;
+    int tweetlength = 140;
 
-    ret_tag = "\0";
-    buffer = "\0";
-    /*mytag = "Testing tags!\0";
-    message = "This is a test message.\0";*/
-    
-    /* i = bput(mytag, message);
-    j = put(mytag, message);
-    k = bget(ret_tag, buffer);
-    l = get(ret_tag, buffer);*/
+    char buffer[tweetlength + 1];
+    buffer[0] = '\0';
 
     char *tag_arr[maxtweettotal] = {"tag 3     ","tag 1     ","tag 4     ","tag 2     ",
         "tag 1     ", "tag 5     ", "tag 5     ", "tag 1     ", "tag 2     ",
@@ -41,18 +30,21 @@ int main(int argc, char *argv[]) {
         printf(1, "Error in with put.\n");
         exit();
     }*/
-
-    k = bget(ret_tag, buffer);
+    
+    char *test_tag = "tag 4     ";
+    k = bget(test_tag, buffer);
     if(0 != k){
         printf(1, "Error in with bget.\n");
         exit();
     }
 
-    /*l = get(ret_tag, buffer);
+    printf(1, "The tweet returned from tag %s was %s.\n", test_tag, buffer);
+
+    l = get(test_tag, buffer);
     if(0 != l){
         printf(1, "Error in with get.\n");
         exit();
-    }*/
+    }
     
 
 
