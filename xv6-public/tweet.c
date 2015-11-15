@@ -67,29 +67,58 @@ int t_bput(char *tag, char *message){
     }
     release(&init_lock);
     
-    /* Find location and insert tweet if possible */
+    /* Find location and aquire lock for that hash location */
     int hash_val = hash(tag);
     acquire(&(tweet_table.tag_list[hash_val].taglock));
     int n = tweet_table.tag_list[hash_val].numtweets;
     
-    /* Check if tweet has been used */
+    /* Check if tag is already initialized */
     if(0 == n){
         cp_tag(tag, tweet_table.tag_list[hash_val].tag);
     }
-    /* Insert tweet if possible */
-    if(n < maxtweetsametag){
-        cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
-        tweet_table.tag_list[hash_val].numtweets = n + 1;
+    
+    /* Insert tweet when possible */
+    while(tweet_table.tag_list[hash_val].numtweets == maxtweetsametag){
+        sleep(&(tweet_table.tag_list[hash_val]), 
+                &(tweet_table.tag_list[hash_val].taglock));
     }
+    cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
+    tweet_table.tag_list[hash_val].numtweets = n + 1;
     release(&(tweet_table.tag_list[hash_val].taglock));
     
-    //cprintf("In tweet.c, t_bget() received: %s, The message: %s\n\n", tag, message);
     return 0;
 }
 
 // like bput but returns immediately if unable to tweet
 int t_put(char *tag, char *message){
-    //cprintf("In tweet.c, t_bget() received: %s, The message: %s\n\n", tag, message);
+    /* Check that hash table is initialized */
+    acquire(&init_lock);
+    if(0 == init_flag){
+        init_tw_table();
+    }
+    release(&init_lock);
+    
+    /* Find location and aquire lock for that hash location */
+    int hash_val = hash(tag);
+    acquire(&(tweet_table.tag_list[hash_val].taglock));
+    int n = tweet_table.tag_list[hash_val].numtweets;
+    
+    /* Check if tag is already initialized */
+    if(0 == n){
+        cp_tag(tag, tweet_table.tag_list[hash_val].tag);
+    }
+    
+    /* Insert tweet if possible */
+    if(n < maxtweetsametag){
+        cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
+        tweet_table.tag_list[hash_val].numtweets = n + 1;
+    } else {
+        release(&(tweet_table.tag_list[hash_val].taglock));
+        return -1;
+    }
+
+    release(&(tweet_table.tag_list[hash_val].taglock));
+    
     return 0;
 }
 
@@ -108,6 +137,8 @@ int t_bget(char *tag, char *buf){
     } else {
         cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
         tweet_table.tag_list[hsh].numtweets = n - 1;
+        if(maxtweetsametag == n)
+            wakeup(&(tweet_table.tag_list[hsh]));
     }
     release(&tweet_table.tag_list[hsh].taglock);
     return 0;
@@ -115,7 +146,21 @@ int t_bget(char *tag, char *buf){
 
 // like bget but returns immediately if cannot find tweet with matching tag
 int t_get(char *tag, char *buf){
-    //cprintf("In tweet.c, t_get() received: %s, The buffer: %s\n\n", tag, buf);
+    int hsh, n;
+
+    hsh = hash(tag);
+    acquire(&tweet_table.tag_list[hsh].taglock);
+    n = tweet_table.tag_list[hsh].numtweets;
+    if(0 == n){
+        /* Case of no msg with this tag; nothing to put in buffer */
+        return -1;
+    } else {
+        cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
+        tweet_table.tag_list[hsh].numtweets = n - 1;
+        if(maxtweetsametag == n)
+            wakeup(&(tweet_table.tag_list[hsh]));
+    }
+    release(&tweet_table.tag_list[hsh].taglock);
     return 0;
 }
 
