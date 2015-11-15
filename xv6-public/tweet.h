@@ -1,21 +1,32 @@
+/* CMPT 322 - Fall 2015
+ * Assignment 3, Question 1
+ * Jennifer Rospad - jlr247
+ * Jordaen Graham - jhg257
+ *
+ * File: tweet.h */
+
 #include "types.h"
 #include "defs.h"
 #include "param.h"
 #include "spinlock.h"
-typedef struct tweet {
-    char *t_tag;
-    char *t_message;
-} tweet;
 
-typedef struct tweet_list {
-    int num_tags_filled;
-    tweet tw_tag_list[maxtweetsametag];
+#define taglength 10
+#define tweetlength 140
+
+typedef char tweet[tweetlength + 1];
+
+struct tag_struct {
+    char tag[taglength + 1];
+    tweet tweets[maxtweetsametag];
+    int numtweets;
     struct spinlock taglock;
-} tweet_list;
+};
 
-typedef struct tw_table {
-    tweet_list tw_entries[maxtweettotal/maxtweetsametag];
-}tw_table;
+typedef struct tag_struct tag_struct;
+
+struct tw_table {
+    tag_struct tag_list[maxtweettotal];
+};
 
 int t_bput(char*, char*);
 int t_put(char*, char*);

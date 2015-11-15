@@ -3,7 +3,7 @@
 #include "user.h"
 
 int main(int argc, char *argv[]) {
-    int i, j, k, l, m;
+    int i,/* j,*/ k, /*l,*/ m;
     
     char *ret_tag;
     char *buffer;
@@ -34,25 +34,26 @@ int main(int argc, char *argv[]) {
             printf(1, "Error in with bput.\n");
             exit();
         }
-
-        j = put(tag_arr[m], msg_arr[m]);
-        if(0 != j){
-            printf(1, "Error in with put.\n");
-            exit();
-        }
-
-        k = bget(ret_tag, buffer);
-        if(0 != k){
-            printf(1, "Error in with bget.\n");
-            exit();
-        }
-
-        l = get(ret_tag, buffer);
-        if(0 != l){
-            printf(1, "Error in with get.\n");
-            exit();
-        }
     }
+
+    /*j = put(tag_arr[m], msg_arr[m]);
+    if(0 != j){
+        printf(1, "Error in with put.\n");
+        exit();
+    }*/
+
+    k = bget(ret_tag, buffer);
+    if(0 != k){
+        printf(1, "Error in with bget.\n");
+        exit();
+    }
+
+    /*l = get(ret_tag, buffer);
+    if(0 != l){
+        printf(1, "Error in with get.\n");
+        exit();
+    }*/
+    
 
 
     /* printf(1, "Inside testtweets.c: mytag = %s, message = %s, ret_tag = %s, buffer = %s\n", mytag, message, ret_tag, buffer);

@@ -1,7 +1,7 @@
 #include "tweet.h"
 
 /* hash table to hold tweets */
-tw_table tweet_table;
+struct tw_table tweet_table;
 
 /* flag and lock to check if tweet_table has been initialized
  * -- plan to move initialization to init function if time left */
@@ -14,42 +14,75 @@ int hash(char *tag){
     hsh = 0;
 
     for (j = 0; j < 10; j++){
-        hsh = (37 * hsh) + tag[j];
+        hsh = (7 * hsh) + tag[j];
     }
 
-    hsh = hsh % (maxtweettotal/maxtweetsametag);
+    hsh = hsh % (maxtweettotal);
     return hsh;
 }
 
 /* initializes tweet table; should be moved elsewhere (like init()) if time */
 void init_tw_table(void){
-    int i;
+    int i, j;
     char *lock_name = "taglock";
     
-    for(i = 0; i < (maxtweettotal/maxtweetsametag); i++){
-        tweet_table.tw_entries[i].num_tags_filled = 0;
-        initlock(&tweet_table.tw_entries[i].taglock, lock_name);
+    for(i = 0; i < maxtweettotal; i++){
+        tweet_table.tag_list[i].tag[0] = '\0';
+        for(j = 0; j < maxtweetsametag; j++){
+            tweet_table.tag_list[i].tweets[j][0] = '\0';
+        }
+        tweet_table.tag_list[i].numtweets = 0;
+        initlock(&tweet_table.tag_list[i].taglock, lock_name);
     }
+
+    init_flag = 1;
+}
+
+/* Copies tag string */
+void cp_tag(char *source, char *dest){
+    int i;
+    for(i = 0; i < taglength; i++){
+        dest[i] = source[i];
+    }
+    dest[taglength] = '\0';
+}
+
+
+/* Copies message string */
+void cp_tweet(char *source, char *dest){
+    int i;
+    for(i = 0; i < tweetlength; i++){
+        dest[i] = source[i];
+    }
+    dest[tweetlength] = '\0';
 }
 
 // "tweet" a 140 character message with a 10 character tag
 // Will block until able to tweet
 int t_bput(char *tag, char *message){
+    /* Check that hash table is initialized */
     acquire(&init_lock);
-        if(0 == init_flag){
-            init_tw_table();
-        }
-    release(&init_lock);
-
-    int hash_val = hash(tag);
-    acquire(&(tweet_table.tw_entries[hash_val].taglock));
-    int n = tweet_table.tw_entries[hash_val].num_tags_filled;
-    if(n < maxtweetsametag){
-        tweet_table.tw_entries[hash_val].tw_tag_list[n].t_tag = tag;
-        tweet_table.tw_entries[hash_val].tw_tag_list[n].t_message = message;
-        tweet_table.tw_entries[hash_val].num_tags_filled = n + 1;
+    if(0 == init_flag){
+        init_tw_table();
     }
-    release(&(tweet_table.tw_entries[hash_val].taglock));
+    release(&init_lock);
+    
+    /* Find location and insert tweet if possible */
+    int hash_val = hash(tag);
+    acquire(&(tweet_table.tag_list[hash_val].taglock));
+    int n = tweet_table.tag_list[hash_val].numtweets;
+    
+    /* Check if tweet has been used */
+    if(0 == n){
+        cp_tag(tag, tweet_table.tag_list[hash_val].tag);
+    }
+    /* Insert tweet if possible */
+    if(n < maxtweetsametag){
+        cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
+        tweet_table.tag_list[hash_val].numtweets = n + 1;
+    }
+    release(&(tweet_table.tag_list[hash_val].taglock));
+    
     //cprintf("In tweet.c, t_bget() received: %s, The message: %s\n\n", tag, message);
     return 0;
 }
@@ -63,16 +96,18 @@ int t_put(char *tag, char *message){
 // reads a tweet with matching tag and removes it from system copying it into buf.
 // Block until able to do so
 int t_bget(char *tag, char *buf){
-    int i, j;
+    int i, j, n;
     //buf = "This buf was returned from t_bget.\0";
     cprintf("In tweet.c, t_bget() received: %s, The buffer: %s\n\n", tag, buf);
     
-    for(i = 0; i < (maxtweettotal/maxtweetsametag); i++){
+    for(i = 0; i < maxtweettotal; i++){
         j = 0;
-        while(j < tweet_table.tw_entries[i].num_tags_filled){
+        n = tweet_table.tag_list[i].numtweets;
+        cprintf("Row %d has %d tweets.\n", i, n);
+        while(j < n){
             cprintf("Entry number %d of row %d is: tag: %s, message: %s\n", j, i, 
-                    tweet_table.tw_entries[i].tw_tag_list[j].t_tag,
-                    tweet_table.tw_entries[i].tw_tag_list[j].t_message);
+                    tweet_table.tag_list[i].tag,
+                    tweet_table.tag_list[i].tweets[j]);
             j++;
         }
     }
