@@ -33,6 +33,8 @@ void init_tw_table(void){
         }
         tweet_table.tag_list[i].numtweets = 0;
         initlock(&tweet_table.tag_list[i].taglock, lock_name);
+        tweet_table.tag_list[i].putwaiter = 0;
+        tweet_table.tag_list[i].getwaiter = 0;
     }
 
     init_flag = 1;
@@ -79,7 +81,7 @@ int t_bput(char *tag, char *message){
     
     /* Insert tweet when possible */
     while(tweet_table.tag_list[hash_val].numtweets == maxtweetsametag){
-        sleep(&(tweet_table.tag_list[hash_val]), 
+        sleep(&(tweet_table.tag_list[hash_val].putwaiter), 
                 &(tweet_table.tag_list[hash_val].taglock));
     }
     cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
@@ -137,7 +139,7 @@ int t_bget(char *tag, char *buf){
     } else {
         cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
         tweet_table.tag_list[hsh].numtweets = n - 1;
-        wakeup(&(tweet_table.tag_list[hsh]));
+        wakeup(&(tweet_table.tag_list[hsh].putwaiter));
     }
     release(&tweet_table.tag_list[hsh].taglock);
     return 0;
@@ -156,7 +158,7 @@ int t_get(char *tag, char *buf){
     } else {
         cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
         tweet_table.tag_list[hsh].numtweets = n - 1;
-        wakeup(&(tweet_table.tag_list[hsh]));
+        wakeup(&(tweet_table.tag_list[hsh].putwaiter));
     }
     release(&tweet_table.tag_list[hsh].taglock);
     return 0;
