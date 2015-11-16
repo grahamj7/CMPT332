@@ -20,7 +20,7 @@ struct tag_struct {
     tweet tweets[maxtweetsametag];
     int numtweets;
     struct spinlock taglock;
-    void* waiter;
+    void *waiter;
 };
 
 typedef struct tag_struct tag_struct;

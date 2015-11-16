@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
 
 
-    printf(1, "\n========== Printing the current tweet table (1)  ==========\n");
+    printf(1, "\n========== Printing the current tweet table  ==========\n");
     printtweettable();
 
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
             printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);
 
         
-            i = bget(test_tag, buffer); //**THIS bget CAUSES ERRORS! - probably due to sleep/wait **
+            i = bget(test_tag, buffer);
             if(0 != i){
                 printf(1, "Error in with bget.\n");
                 exit();
