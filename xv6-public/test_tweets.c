@@ -3,7 +3,7 @@
 #include "user.h"
 
 int main(int argc, char *argv[]) {
-    int i, m, rc;
+    int i, m, rc, rc2, rc3;
     int tweetlength = 140;
 
     char buffer[tweetlength + 1];
@@ -40,23 +40,22 @@ int main(int argc, char *argv[]) {
         exit(); 
     }
     else if(0 == rc){ /* grandparent thread */
-        /*rc = fork();
-        if(0 > rc){
+        rc2 = fork();
+        if(0 > rc2){
             printf(1, "Failed to fork\n");
             exit();
         }
-        else if(0 == rc){*/ /* parent thread */
-            /*rc = fork();
-            if(0 > rc){
+        else if(0 == rc2){ /* parent thread */
+            rc3 = fork();
+            if(0 > rc3){
                 printf(1, "Failed to fork\n");
                 exit();
             }
-            else if(0 == rc){*/ /* child thread */
-                // do stuff
-                /*exit();
+            else if(0 == rc3){ /* child thread */
+                printf(1, "Child thread!\n");
             }
-            else { *//* parent thread */
-                /*char *test_tag_par = "tag 1     ";
+            else { /* parent thread */
+                char *test_tag_par = "tag 1     ";
                 i = bget(test_tag_par, buffer);
                 if(0 != i){
                 printf(1, "Error in with get.\n");
@@ -81,17 +80,16 @@ int main(int argc, char *argv[]) {
                 printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
 
                 test_tag_par = "tag 4     ";
-                i = bget(test_tag_par, buffer);
-                if(-1 != i){
-                    printf(1, "Error in with get.\n");
+                char *test_msg_par = "Pineapples 704";
+                i = bput(test_tag_par, test_msg_par);
+                if(0 != i){
+                    printf(1, "Error in with put.\n");
                     exit();
                 }
-                printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
                 wait();
-                exit();
             }
         }
-        else {*/ /* grandparent thread */
+        else { /* grandparent thread */
             char *test_tag = "tag 4     ";
             i = bget(test_tag, buffer);
             if(0 != i){
@@ -117,94 +115,19 @@ int main(int argc, char *argv[]) {
             printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);
 
         
-            /*i = bget(test_tag, buffer);
+            /*i = bget(test_tag, buffer); **THIS bget CAUSES ERRORS! - probably due to sleep/wait **
             if(0 != i){
                 printf(1, "Error in with bget.\n");
                 exit();
             }
-            printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);
-            wait();*/
-            exit();    
-        //}
+            printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);*/
+            wait();
+        }
     }
     else { /* great grandparent thread */
         wait();
         printtweettable();
     }
-
-    /*printf(1, "\n========== Pull latest tweet with tag 4 (using bget) ==========\n");
-    char *test_tag = "tag 4     ";
-    i = bget(test_tag, buffer);
-    if(0 != i){
-        printf(1, "Error in with bget.\n");
-        exit();
-    }
-    printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);
-
-
-
-    printf(1, "\n========== Pull latest tweet with tag 4 (using get) ==========\n");
-    i = get(test_tag, buffer);
-    if(0 != i){
-        printf(1, "Error in with get.\n");
-        exit();
-    }
-    printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);
-
-
-    
-    printf(1, "\n========== Printing the current tweet table (2)  ==========\n");
-    printtweettable();
-
-
-
-    printf(1, "\n========== Attempt to exceed maxtweetssametag with put (should "
-            "have no output)  ==========\n");
-    char *new_tag = "tag 5     ";
-    char *new_msg = "17 pineapples!";
-    i = put(new_tag, new_msg);
-    if(-1 != i){
-        printf(1, "Error in with put. It should have failed with a -1 code.\n");
-        exit();
-    }
-
-
-
-    printf(1, "\n========== Printing the current tweet table (3) ==========\n");
-    printtweettable();
-
-
-
-    printf(1, "\n========== Attempt to bput msg 42 pineapples when maxtweetsametag"
-           " is exceeded. Must wait.  ==========\n");
-    char *new_tag2 = "tag 5     ";
-    char *new_msg2 = "42 pineapples!";
-    i = bput(new_tag2, new_msg2);
-    if(0 != i){
-        printf(1, "Error in with bput.\n");
-        exit();
-    }
-
-
-    printf(1, "\n========== Printing the current tweet table (4)  ==========\n");
-    printtweettable();
-
-
-
-    printf(1, "\n========== Using bget to pull latest tag 5 tweet ==========\n");
-    char *test_tag2 = "tag 5     ";
-    i = bget(test_tag2, buffer);
-    if(0 != i){
-        printf(1, "Error in with bget.\n");
-        exit();
-    }
-    printf(1, "The tweet returned from tag %s was %s.\n", test_tag2, buffer);
-    
-
-
-    printf(1, "\n========== Printing the current tweet table  ==========\n");
-    printtweettable(); */
-
 
     exit();
 }
