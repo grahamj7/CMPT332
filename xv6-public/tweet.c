@@ -137,8 +137,7 @@ int t_bget(char *tag, char *buf){
     } else {
         cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
         tweet_table.tag_list[hsh].numtweets = n - 1;
-        if(maxtweetsametag == n)
-            wakeup(&(tweet_table.tag_list[hsh]));
+        wakeup(&(tweet_table.tag_list[hsh]));
     }
     release(&tweet_table.tag_list[hsh].taglock);
     return 0;
@@ -157,8 +156,7 @@ int t_get(char *tag, char *buf){
     } else {
         cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
         tweet_table.tag_list[hsh].numtweets = n - 1;
-        if(maxtweetsametag == n)
-            wakeup(&(tweet_table.tag_list[hsh]));
+        wakeup(&(tweet_table.tag_list[hsh]));
     }
     release(&tweet_table.tag_list[hsh].taglock);
     return 0;
