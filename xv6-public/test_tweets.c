@@ -17,6 +17,17 @@ int main(int argc, char *argv[]) {
         "banana 2", "starfish 1", "starfish 2", "banana 3", "apple 2", "dog 2",
         "cat 2", "starfish 3", "apple 3", "dog 3", "cat 3"};
 
+
+    printf(1, "\n========== Testing for Hash Collissions ==========\n");
+
+    char *test_tag_par = "tag 32    ";
+    char *test_msg_par = "message 1";
+    i = put(test_tag_par, test_msg_par);
+    test_tag_par = "tag 29    ";
+    test_msg_par = "message 2";
+    i = put(test_tag_par, test_msg_par);
+
+
     printf(1, "\n========== Putting initial data in tweet structure ==========\n");
     for(m = 0; m < maxtweettotal; m++){
         i = bput(tag_arr[m], msg_arr[m]);
