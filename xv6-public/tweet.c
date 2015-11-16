@@ -71,10 +71,9 @@ int t_bput(char *tag, char *message){
     /* Find location and aquire lock for that hash location */
     int hash_val = hash(tag);
     acquire(&(tweet_table.tag_list[hash_val].taglock));
-    int n = tweet_table.tag_list[hash_val].numtweets;
     
     /* Check if tag is already initialized */
-    if(0 == n){
+    if(0 == tweet_table.tag_list[hash_val].numtweets){
         cp_tag(tag, tweet_table.tag_list[hash_val].tag);
     }
     
@@ -83,10 +82,11 @@ int t_bput(char *tag, char *message){
         sleep(tweet_table.tag_list[hash_val].waiter, 
                 &(tweet_table.tag_list[hash_val].taglock));
     }
-    cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
-    tweet_table.tag_list[hash_val].numtweets = n + 1;
+    cp_tweet(message, 
+      tweet_table.tag_list[hash_val].tweets[tweet_table.tag_list[hash_val].numtweets]);
+    tweet_table.tag_list[hash_val].numtweets = tweet_table.tag_list[hash_val].numtweets+1;
     
-    if(0 == n){
+    if(1 == tweet_table.tag_list[hash_val].numtweets){
         wakeup(tweet_table.tag_list[hash_val].waiter);
     }
     release(&(tweet_table.tag_list[hash_val].taglock));
@@ -106,23 +106,22 @@ int t_put(char *tag, char *message){
     /* Find location and aquire lock for that hash location */
     int hash_val = hash(tag);
     acquire(&(tweet_table.tag_list[hash_val].taglock));
-    int n = tweet_table.tag_list[hash_val].numtweets;
     
     /* Check if tag is already initialized */
-    if(0 == n){
+    if(0 == tweet_table.tag_list[hash_val].numtweets){
         cp_tag(tag, tweet_table.tag_list[hash_val].tag);
     }
     
     /* Insert tweet if possible */
-    if(n < maxtweetsametag){
-        cp_tweet(message, tweet_table.tag_list[hash_val].tweets[n]);
-        tweet_table.tag_list[hash_val].numtweets = n + 1;
+    if(tweet_table.tag_list[hash_val].numtweets < maxtweetsametag){
+        cp_tweet(message, tweet_table.tag_list[hash_val].tweets[tweet_table.tag_list[hash_val].numtweets]);
+        tweet_table.tag_list[hash_val].numtweets = tweet_table.tag_list[hash_val].numtweets+1;
     } else {
         release(&(tweet_table.tag_list[hash_val].taglock));
         return -1;
     }
     
-    if(0 == n){
+    if(1 == tweet_table.tag_list[hash_val].numtweets){
         wakeup(tweet_table.tag_list[hash_val].waiter);
     }
     release(&(tweet_table.tag_list[hash_val].taglock));
@@ -133,14 +132,12 @@ int t_put(char *tag, char *message){
 // reads a tweet with matching tag and removes it from system copying it into buf.
 // Block until able to do so
 int t_bget(char *tag, char *buf){
-    int hsh, n;
+    int hsh;
 
     hsh = hash(tag);
 
     acquire(&tweet_table.tag_list[hsh].taglock);    
-    n = tweet_table.tag_list[hsh].numtweets;
     while(tweet_table.tag_list[hsh].numtweets <= 0){            
-        cprintf("GO TO HERE! (5)\n"); 
         sleep(tweet_table.tag_list[hsh].waiter,
             &(tweet_table.tag_list[hsh].taglock));
         cprintf("Wake up and check num tweets (numtweets = %d)\n", 
@@ -149,9 +146,9 @@ int t_bget(char *tag, char *buf){
 
     cprintf("Left the while loop, no longer sleeping.\n");
         
-    cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
-    tweet_table.tag_list[hsh].numtweets = n - 1;
-    if(n == maxtweetsametag){
+    cp_tweet(tweet_table.tag_list[hsh].tweets[tweet_table.tag_list[hsh].numtweets - 1], buf);
+    tweet_table.tag_list[hsh].numtweets = tweet_table.tag_list[hsh].numtweets - 1;
+    if(tweet_table.tag_list[hsh].numtweets == maxtweetsametag - 1){
         wakeup(tweet_table.tag_list[hsh].waiter);
     }
 
@@ -162,19 +159,18 @@ int t_bget(char *tag, char *buf){
 
 // like bget but returns immediately if cannot find tweet with matching tag
 int t_get(char *tag, char *buf){
-    int hsh, n;
+    int hsh;
 
     hsh = hash(tag);
     acquire(&tweet_table.tag_list[hsh].taglock);
-    n = tweet_table.tag_list[hsh].numtweets;
-    if(0 == n){
+    if(0 == tweet_table.tag_list[hsh].numtweets){
         /* Case of no msg with this tag; nothing to put in buffer */
         release(&tweet_table.tag_list[hsh].taglock);
         return -1;
     } else {
-        cp_tweet(tweet_table.tag_list[hsh].tweets[n - 1], buf);
-        tweet_table.tag_list[hsh].numtweets = n - 1;
-        if(n == maxtweetsametag){
+        cp_tweet(tweet_table.tag_list[hsh].tweets[tweet_table.tag_list[hsh].numtweets - 1], buf);
+        tweet_table.tag_list[hsh].numtweets = tweet_table.tag_list[hsh].numtweets - 1;
+        if(tweet_table.tag_list[hsh].numtweets == maxtweetsametag - 1){
             wakeup(tweet_table.tag_list[hsh].waiter);
         }
     }
