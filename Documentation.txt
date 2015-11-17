@@ -1,0 +1,137 @@
+==========================================================
+
+        CMPT 332 - Fall 2015
+        Assignment 3 Question 1
+        
+        Jennifer Rospad - jlr247
+        Jordaen Graham - jhg257
+        
+        File: Documentation.txt
+        
+==========================================================
+
+**Files edited for this question:**
+Makefile, param.h, syscall.c, syscall.h, sysfile.c, usys.S
+
+**Files added:**
+tweets.c, tweets.h, test_tweets.c
+
+Makefile:
+    changed CPUS number and added tweet.o (L 30), and test_tweets in UPROGS (L176)
+    
+param.h:
+    added definitions of maxtweetsametag and maxtweettotal (L14-15)
+    
+syscall.c:
+    added bput, put, bget, get, and printtweettable syscalls (L101-105, 129-133)
+
+syscall.h:
+    added bput, put, bget, get, and printtweettable syscalls (L23-27)
+
+sysfile.c:
+    added syscall implementations of bput, put, bget, get, and printtweettable
+    that will call the full functions in tweet.c (L16, 445-517)
+
+usys.S:
+    added bput, put, bget, get, and printtweettable declarations (L26-30)
+    
+tweets.c:
+    implementation of the putting/getting tweet features
+
+test_tweets.c:
+    Testing program for our tweeting syscalls
+
+tweets.h:
+    Header file for tweets.c
+    
+======== WHAT IS WORKING =======
+Our system will enter and retrieve tweets using bget, get, put and bput as
+required, using mutual exclusion. It also checks that we do not exceed the max
+number of tweets. We did not get to test as many cases as we wanted to, like
+some boundary cases (ran out of time).
+
+====== THINGS TO FIX ======
+The printing feature shouldn't be a syscall, and the initialization of the
+tweets talbe should happen somewhere else (so we aren't locking so much). If we had more time, we would fix this.
+
+example output (as expected):
+
+========== Putting initial data in tweet structure ==========
+
+========== Testing for Hash Collissions ==========
+
+========== Printing the current tweet table  ==========
+Row 0 has 0 tweets.
+Row 1 has 3 tweets.
+Entry number 0 of row 1 is: tag: tag 4     , message: dog 1
+Entry number 1 of row 1 is: tag: tag 4     , message: dog 2
+Entry number 2 of row 1 is: tag: tag 4     , message: dog 3
+Row 2 has 3 tweets.
+Entry number 0 of row 2 is: tag: tag 2     , message: apple 1
+Entry number 1 of row 2 is: tag: tag 2     , message: apple 2
+Entry number 2 of row 2 is: tag: tag 2     , message: apple 3
+Row 3 has 0 tweets.
+Row 4 has 0 tweets.
+Row 5 has 0 tweets.
+Row 6 has 0 tweets.
+Row 7 has 0 tweets.
+Row 8 has 3 tweets.
+Entry number 0 of row 8 is: tag: tag 5     , message: starfish 1
+Entry number 1 of row 8 is: tag: tag 5     , message: starfish 2
+Entry number 2 of row 8 is: tag: tag 5     , message: starfish 3
+Row 9 has 3 tweets.
+Entry number 0 of row 9 is: tag: tag 3     , message: cat 1
+Entry number 1 of row 9 is: tag: tag 3     , message: cat 2
+Entry number 2 of row 9 is: tag: tag 3     , message: cat 3
+Row 10 has 3 tweets.
+Entry number 0 of row 10 is: tag: tag 1     , message: banana 1
+Entry number 1 of row 10 is: tag: tag 1     , message: banana 2
+Entry number 2 of row 10 is: tag: tag 1     , message: banana 3
+Row 11 has 0 tweets.
+Row 12 has 0 tweets.
+Row 13 has 0 tweets.
+Row 14 has 0 tweets.
+
+========== Forking to create multiple test threads  ==========
+
+The tweet returned from tag tag 4      was dog 3.
+
+The tweet returned from tag tag 4      was dog 2.
+
+The tweet returned from tag tag 4      was dog 1.
+
+The tweet returned from tag tag 1      was banana 3.
+
+The tweet returned from tag tag 1      was banana 2.
+
+The tweet returned from tag tag 1      was banana 1.
+
+Testing get() passed! It correctly threw an error.
+
+The tweet returned from tag tag 5      was starfish 3.
+
+The tweet returned from tag tag 4      was Pineapples 704.
+Row 0 has 0 tweets.
+Row 1 has 0 tweets.
+Row 2 has 3 tweets.
+Entry number 0 of row 2 is: tag: tag 2     , message: apple 1
+Entry number 1 of row 2 is: tag: tag 2     , message: apple 2
+Entry number 2 of row 2 is: tag: tag 2     , message: apple 3
+Row 3 has 0 tweets.
+Row 4 has 0 tweets.
+Row 5 has 0 tweets.
+Row 6 has 0 tweets.
+Row 7 has 0 tweets.
+Row 8 has 2 tweets.
+Entry number 0 of row 8 is: tag: tag 5     , message: starfish 1
+Entry number 1 of row 8 is: tag: tag 5     , message: starfish 2
+Row 9 has 3 tweets.
+Entry number 0 of row 9 is: tag: tag 3     , message: cat 1
+Entry number 1 of row 9 is: tag: tag 3     , message: cat 2
+Entry number 2 of row 9 is: tag: tag 3     , message: cat 3
+Row 10 has 0 tweets.
+Row 11 has 0 tweets.
+Row 12 has 0 tweets.
+Row 13 has 0 tweets.
+Row 14 has 0 tweets.
+
