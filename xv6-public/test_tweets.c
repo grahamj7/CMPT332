@@ -18,16 +18,6 @@ int main(int argc, char *argv[]) {
         "cat 2", "starfish 3", "apple 3", "dog 3", "cat 3"};
 
 
-    printf(1, "\n========== Testing for Hash Collisions ==========\n");
-
-    char *test_tag_par = "tag 32    ";
-    char *test_msg_par = "message 1";
-    i = put(test_tag_par, test_msg_par);
-    test_tag_par = "tag 29    ";
-    test_msg_par = "message 2";
-    i = put(test_tag_par, test_msg_par);
-
-
     printf(1, "\n========== Putting initial data in tweet structure ==========\n");
     for(m = 0; m < maxtweettotal; m++){
         i = bput(tag_arr[m], msg_arr[m]);
@@ -36,12 +26,19 @@ int main(int argc, char *argv[]) {
             exit();
         }
     }
-
+    
+    
+    printf(1, "\n========== Testing for Hash Collisions ==========\n");
+    char *test_tag_par = "tag 32    ";
+    char *test_msg_par = "message 1";
+    i = put(test_tag_par, test_msg_par);
+    test_tag_par = "tag 29    ";
+    test_msg_par = "message 2";
+    i = put(test_tag_par, test_msg_par);
 
 
     printf(1, "\n========== Printing the current tweet table  ==========\n");
     printtweettable();
-
 
 
     printf(1, "\n========== Forking to create multiple test threads  ==========\n");
@@ -63,13 +60,21 @@ int main(int argc, char *argv[]) {
                 exit();
             }
             else if(0 == rc3){ /* child thread */
-                printf(1, "Child thread!\n");
+                char *test_tag_par = "tag 5     ";
+                i = get(test_tag_par, buffer);
+                if(0 != i){
+                    printf(1, "Error with get.\n");
+                    exit();
+                }
+                printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
+                
+                
             }
             else { /* parent thread */
                 char *test_tag_par = "tag 1     ";
                 i = bget(test_tag_par, buffer);
                 if(0 != i){
-                printf(1, "Error in with get.\n");
+                printf(1, "Error in with bget.\n");
                     exit();
                 }
                 printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
@@ -77,7 +82,7 @@ int main(int argc, char *argv[]) {
 
                 i = bget(test_tag_par, buffer);
                  if(0 != i){
-                    printf(1, "Error in with get.\n");
+                    printf(1, "Error in with bget.\n");
                     exit();
                 }
                 printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
@@ -85,10 +90,19 @@ int main(int argc, char *argv[]) {
 
                 i = bget(test_tag_par, buffer);
                 if(0 != i){
-                    printf(1, "Error in with get.\n");
+                    printf(1, "Error in with gbet.\n");
                     exit();
                 }
                 printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
+                
+                i = get(test_tag_par, buffer);
+                if(0 != i){
+                    printf(1,"\nTesting get() passed! It correctly threw an error.\n");
+                }
+                else {
+                    printf(1, "Error with get.\n");
+                    exit();
+                }
 
                 test_tag_par = "tag 4     ";
                 char *test_msg_par = "Pineapples 704";
