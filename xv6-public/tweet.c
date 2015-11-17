@@ -35,6 +35,10 @@ void init_tw_table(void){
         initlock(&tweet_table.tag_list[i].taglock, lock_name);
         tweet_table.tag_list[i].waiter = 0;
     }
+    
+    tweet_table.currtotal = 0;
+    lock_name = "total tweet lock";
+    initlock(&tweet_table.totallock, lock_name);
 
     init_flag = 1;
 }
@@ -86,11 +90,20 @@ int t_bput(char *tag, char *message){
     }
     release(&init_lock);
     
+    /* Check that tweet has correct number of characters */
     if (strlen(tag) > taglength || strlen(message) > tweetlength){
         cprintf("Your tweet is not formatted correctly and will not be added to the tweet table\n");
         return -1;
     }    
-    
+
+    /* Check if tweet table is full */
+    acquire(&tweet_table.totallock);
+    while(tweet_table.currtotal >= maxtweettotal){
+        sleep(&tweet_table, &tweet_table.totallock);
+    }
+    tweet_table.currtotal = tweet_table.currtotal + 1;
+    release(&tweet_table.totallock);
+
     /* Find location and aquire lock for that hash location */
     int hash_val = hash(tag), new_hash_val;
     acquire(&(tweet_table.tag_list[hash_val].taglock));
@@ -134,14 +147,24 @@ int t_put(char *tag, char *message){
     }
     release(&init_lock);
     
+    /* Check that tweet has correct number of characters */
     if (strlen(tag) > taglength || strlen(message) > tweetlength){
         cprintf("Your tweet is not formatted correctly and will not be added to the tweet table\n");
         return -1;
     }    
+
+    /* Check if tweet table is full */
+    acquire(&tweet_table.totallock);
+    if(tweet_table.currtotal >= maxtweettotal){
+        release(&tweet_table.totallock);
+        return -1;
+    }
+    release(&tweet_table.totallock);
     
     /* Find location and aquire lock for that hash location */
     int hash_val = hash(tag), new_hash_val;
-    acquire(&tweet_table.tag_list[hash_val].taglock);
+    acquire(&(tweet_table.tag_list[hash_val].taglock));
+    
     /* Check if tag is already initialized */
     if(0 == tweet_table.tag_list[hash_val].numtweets){
         cp_tag(tag, tweet_table.tag_list[hash_val].tag);
@@ -203,6 +226,14 @@ int t_bget(char *tag, char *buf){
 
     release(&tweet_table.tag_list[hsh].taglock);
     
+    /* If table was full, signal */
+    acquire(&tweet_table.totallock);
+    tweet_table.currtotal = tweet_table.currtotal - 1;
+    if(tweet_table.currtotal == maxtweettotal -1){
+        wakeup(&tweet_table);
+    }    
+    release(&tweet_table.totallock);
+    
     return 0;
 }
 
@@ -229,6 +260,15 @@ int t_get(char *tag, char *buf){
         }
     }
     release(&tweet_table.tag_list[hsh].taglock);
+    
+    /* If table was full, signal */
+    acquire(&tweet_table.totallock);
+    tweet_table.currtotal = tweet_table.currtotal - 1;
+    if(tweet_table.currtotal == maxtweettotal -1){
+        wakeup(&tweet_table);
+    }    
+    release(&tweet_table.totallock);
+    
     return 0;
 }
 

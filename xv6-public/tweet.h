@@ -27,6 +27,8 @@ typedef struct tag_struct tag_struct;
 
 struct tw_table {
     tag_struct tag_list[maxtweettotal];
+    int currtotal;
+    struct spinlock totallock;
 };
 
 int t_bput(char*, char*);
