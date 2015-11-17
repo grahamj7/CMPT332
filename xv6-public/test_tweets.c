@@ -27,26 +27,6 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    printf(1, "\n========== Testing for Hash Collissions ==========\n");
-
-    char *test_tag_par = "tag 32    ";
-    char *test_msg_par = "message 1";
-    i = put(test_tag_par, test_msg_par);
-    test_tag_par = "tag 29    ";
-    test_msg_par = "message 2";
-    i = put(test_tag_par, test_msg_par);
-    test_tag_par = "tag 29    ";
-    test_msg_par = "message 3";
-    i = put(test_tag_par, test_msg_par);
-
-/*
-    printtweettable();
-    i = bget(test_tag_par, buffer);
-    printf(1, "Retrieved: %s\n", buffer);
-    test_tag_par = "tag 32    ";
-    i = bget(test_tag_par, buffer);
-    printf(1, "Retrieved: %s\n", buffer);
-*/
 
     printf(1, "\n========== Printing the current tweet table  ==========\n");
     printtweettable();
@@ -79,7 +59,7 @@ int main(int argc, char *argv[]) {
                 }
                 printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag_par, buffer);
                 
-                
+                exit();
             }
             else { /* parent thread */
                 char *test_tag_par = "tag 1     ";
@@ -123,6 +103,7 @@ int main(int argc, char *argv[]) {
                     exit();
                 }
                 wait();
+                exit();
             }
         }
         else { /* grandparent thread */
@@ -158,12 +139,47 @@ int main(int argc, char *argv[]) {
             }
             printf(1, "\nThe tweet returned from tag %s was %s.\n", test_tag, buffer);
             wait();
+            exit();
         }
     }
     else { /* great grandparent thread */
         wait();
         printtweettable();
     }
+    
+    printf(1, "\n========== Testing for Hash Collissions ==========\n");
+
+    char *test_tag_par = "tag 32    ";
+    char *test_msg_par = "message 1";
+    i = put(test_tag_par, test_msg_par);
+    if(0 != i){
+        printf(1, "Error in with put.\n");
+        exit();
+    }
+    test_tag_par = "tag 29    ";
+    test_msg_par = "message 2";
+    i = put(test_tag_par, test_msg_par);
+    if(0 != i){
+        printf(1, "Error in with put.\n");
+        exit();
+    }
+    test_tag_par = "tag 29    ";
+    test_msg_par = "message 3";
+    i = put(test_tag_par, test_msg_par);
+    if(0 != i){
+        printf(1, "Error in with put.\n");
+        exit();
+    }
+
+
+    printtweettable();
+    i = bget(test_tag_par, buffer);
+    printf(1, "Retrieved: %s\n", buffer);
+    test_tag_par = "tag 32    ";
+    i = bget(test_tag_par, buffer);
+    printf(1, "Retrieved: %s\n", buffer);
+
+
 
     exit();
 }
