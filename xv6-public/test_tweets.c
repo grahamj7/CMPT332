@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         "cat 2", "starfish 3", "apple 3", "dog 3", "cat 3"};
 
 
-    printf(1, "\n========== Testing for Hash Collissions ==========\n");
+    printf(1, "\n========== Testing for Hash Collisions ==========\n");
 
     char *test_tag_par = "tag 32    ";
     char *test_msg_par = "message 1";

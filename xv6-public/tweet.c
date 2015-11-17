@@ -62,10 +62,13 @@ void cp_tweet(char *source, char *dest){
     dest[tweetlength] = '\0';
 }
 
+/* Checks for matching tags */
 int check_tag_matches_hash_table_tag(char *tag, int hash_val){
     int n, count=0;
     if (strncmp(tag, tweet_table.tag_list[hash_val].tag, taglength) != 0){
         release(&(tweet_table.tag_list[hash_val].taglock));
+        
+        /* find a new hash value for the tag if this one is taken */
         do {
             if (count > maxtweettotal){
                 return -1;
@@ -76,12 +79,11 @@ int check_tag_matches_hash_table_tag(char *tag, int hash_val){
         } while (n != 0); 
         acquire(&(tweet_table.tag_list[hash_val].taglock));
     }
-
     return hash_val;
 }
 
-// "tweet" a 140 character message with a 10 character tag
-// Will block until able to tweet
+/* "tweet" a 140 character message with a 10 character tag
+    Will block until able to tweet */
 int t_bput(char *tag, char *message){
     /* Check that hash table is initialized */
     acquire(&init_lock);
@@ -130,6 +132,7 @@ int t_bput(char *tag, char *message){
       tweet_table.tag_list[hash_val].tweets[tweet_table.tag_list[hash_val].numtweets]);
     tweet_table.tag_list[hash_val].numtweets = tweet_table.tag_list[hash_val].numtweets+1;
     
+    /* Signal waiting getters */
     if(1 == tweet_table.tag_list[hash_val].numtweets){
         wakeup(tweet_table.tag_list[hash_val].waiter);
     }
@@ -138,7 +141,7 @@ int t_bput(char *tag, char *message){
     return 0;
 }
 
-// like bput but returns immediately if unable to tweet
+/* like bput but returns immediately if unable to tweet */
 int t_put(char *tag, char *message){
     /* Check that hash table is initialized */
     acquire(&init_lock);
@@ -188,6 +191,7 @@ int t_put(char *tag, char *message){
         return -1;
     }
     
+    /* Notify waiting getters */
     if(1 == tweet_table.tag_list[hash_val].numtweets){
         wakeup(tweet_table.tag_list[hash_val].waiter);
     }
@@ -200,7 +204,8 @@ int t_put(char *tag, char *message){
 // Block until able to do so
 int t_bget(char *tag, char *buf){
     int hsh;
-
+    
+    /* Check that tag is valid */
     if (strlen(tag) > taglength){
         cprintf("Your tag is not formatted correctly and will not be added to the tweet table\n");
         return -1;
@@ -208,18 +213,17 @@ int t_bget(char *tag, char *buf){
 
     hsh = hash(tag);
 
+    /* Get a tweet from that hash location when able */
     acquire(&tweet_table.tag_list[hsh].taglock);    
     while(tweet_table.tag_list[hsh].numtweets <= 0){            
-        sleep(tweet_table.tag_list[hsh].waiter,
-            &(tweet_table.tag_list[hsh].taglock));
-        cprintf("Wake up and check num tweets (numtweets = %d)\n", 
-          tweet_table.tag_list[hsh].numtweets);
+        sleep(tweet_table.tag_list[hsh].waiter, &(tweet_table.tag_list[hsh].taglock));
     } 
-
-    cprintf("Left the while loop, no longer sleeping.\n");
-        
+    
+    /* Copy tweet to buffer */    
     cp_tweet(tweet_table.tag_list[hsh].tweets[tweet_table.tag_list[hsh].numtweets - 1], buf);
     tweet_table.tag_list[hsh].numtweets = tweet_table.tag_list[hsh].numtweets - 1;
+    
+    /* Wake up sleeping putters */
     if(tweet_table.tag_list[hsh].numtweets == maxtweetsametag - 1){
         wakeup(tweet_table.tag_list[hsh].waiter);
     }
@@ -240,21 +244,25 @@ int t_bget(char *tag, char *buf){
 // like bget but returns immediately if cannot find tweet with matching tag
 int t_get(char *tag, char *buf){
     int hsh;
-
+    
+    /* Check that tag is valid */
     if (strlen(tag) > taglength){
         cprintf("Your tag is not formatted correctly and will not be added to the tweet table\n");
         return -1;
     }    
 
     hsh = hash(tag);
+    
     acquire(&tweet_table.tag_list[hsh].taglock);
     if(0 == tweet_table.tag_list[hsh].numtweets){
         /* Case of no msg with this tag; nothing to put in buffer */
         release(&tweet_table.tag_list[hsh].taglock);
         return -1;
     } else {
+        /* Get tweet if there is one */
         cp_tweet(tweet_table.tag_list[hsh].tweets[tweet_table.tag_list[hsh].numtweets - 1], buf);
         tweet_table.tag_list[hsh].numtweets = tweet_table.tag_list[hsh].numtweets - 1;
+        /* Wake up sleeping putters */
         if(tweet_table.tag_list[hsh].numtweets == maxtweetsametag - 1){
             wakeup(tweet_table.tag_list[hsh].waiter);
         }
@@ -274,7 +282,7 @@ int t_get(char *tag, char *buf){
 
 void t_print_table(void){
     int i, j, n;
-    
+     /* Loop through tweet table and print contents */
     for(i = 0; i < maxtweettotal; i++){
         j = 0;
         n = tweet_table.tag_list[i].numtweets;
