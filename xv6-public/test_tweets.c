@@ -27,15 +27,26 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    
-    printf(1, "\n========== Testing for Hash Collisions ==========\n");
+    printf(1, "\n========== Testing for Hash Collissions ==========\n");
+
     char *test_tag_par = "tag 32    ";
     char *test_msg_par = "message 1";
     i = put(test_tag_par, test_msg_par);
     test_tag_par = "tag 29    ";
     test_msg_par = "message 2";
     i = put(test_tag_par, test_msg_par);
+    test_tag_par = "tag 29    ";
+    test_msg_par = "message 3";
+    i = put(test_tag_par, test_msg_par);
 
+/*
+    printtweettable();
+    i = bget(test_tag_par, buffer);
+    printf(1, "Retrieved: %s\n", buffer);
+    test_tag_par = "tag 32    ";
+    i = bget(test_tag_par, buffer);
+    printf(1, "Retrieved: %s\n", buffer);
+*/
 
     printf(1, "\n========== Printing the current tweet table  ==========\n");
     printtweettable();

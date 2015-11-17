@@ -63,7 +63,7 @@ void cp_tweet(char *source, char *dest){
 }
 
 /* Checks for matching tags */
-int check_tag_matches_hash_table_tag(char *tag, int hash_val){
+int put_check_tag_matches_hash_table_tag(char *tag, int hash_val){
     int n, count=0;
     if (strncmp(tag, tweet_table.tag_list[hash_val].tag, taglength) != 0){
         release(&(tweet_table.tag_list[hash_val].taglock));
@@ -76,8 +76,22 @@ int check_tag_matches_hash_table_tag(char *tag, int hash_val){
             hash_val = (hash_val + 1) % maxtweettotal;
             n = tweet_table.tag_list[hash_val].numtweets;
             count++;
-        } while (n != 0); 
+        } while (n != 0 && strncmp(tag, tweet_table.tag_list[hash_val].tag, taglength) != 0); 
         acquire(&(tweet_table.tag_list[hash_val].taglock));
+    }
+    return hash_val;
+}
+
+int get_check_tag_matches_hash_table_tag(char *tag, int orig_hash_val){
+    int hash_val = orig_hash_val, count=0;
+    if (strncmp(tag, tweet_table.tag_list[hash_val].tag, taglength) != 0){
+        do {
+            if (count > maxtweettotal){
+                return orig_hash_val;
+            }
+            hash_val = (hash_val + 1) % maxtweettotal;
+            count++;
+        } while (strncmp(tag, tweet_table.tag_list[hash_val].tag, taglength) != 0); 
     }
     return hash_val;
 }
@@ -107,19 +121,19 @@ int t_bput(char *tag, char *message){
     release(&tweet_table.totallock);
 
     /* Find location and aquire lock for that hash location */
-    int hash_val = hash(tag), new_hash_val;
+    int hash_val = hash(tag);
     acquire(&(tweet_table.tag_list[hash_val].taglock));
     
     /* Check if tag is already initialized */
     if(0 == tweet_table.tag_list[hash_val].numtweets){
         cp_tag(tag, tweet_table.tag_list[hash_val].tag);
     } else {
-	    new_hash_val = check_tag_matches_hash_table_tag(tag, hash_val);
-	    if (new_hash_val != -1) {
-            hash_val = new_hash_val;
+	    hash_val = put_check_tag_matches_hash_table_tag(tag, hash_val);
+	    if (hash_val == -1) {
+	        cprintf("No room left in tweet table after hash collision\n");
+            return -1;
         } else {
-
-            acquire(&(tweet_table.tag_list[hash_val].taglock));
+            cp_tag(tag, tweet_table.tag_list[hash_val].tag);
         }
     }
     
@@ -165,20 +179,19 @@ int t_put(char *tag, char *message){
     release(&tweet_table.totallock);
     
     /* Find location and aquire lock for that hash location */
-    int hash_val = hash(tag), new_hash_val;
-    acquire(&(tweet_table.tag_list[hash_val].taglock));
-    
+    int hash_val = hash(tag);
+    acquire(&tweet_table.tag_list[hash_val].taglock);
+
     /* Check if tag is already initialized */
     if(0 == tweet_table.tag_list[hash_val].numtweets){
         cp_tag(tag, tweet_table.tag_list[hash_val].tag);
     } else {
-	    new_hash_val = check_tag_matches_hash_table_tag(tag, hash_val);
-	    if (new_hash_val != -1) {
-            hash_val = new_hash_val;
-            cp_tag(tag, tweet_table.tag_list[hash_val].tag);
+	    hash_val = put_check_tag_matches_hash_table_tag(tag, hash_val);
+	    if (hash_val == -1) {
+	        cprintf("No room left in tweet table after hash collision\n");
+            return -1;
         } else {
-
-            acquire(&(tweet_table.tag_list[hash_val].taglock));
+            cp_tag(tag, tweet_table.tag_list[hash_val].tag);
         }
     }
 
@@ -212,6 +225,7 @@ int t_bget(char *tag, char *buf){
     }    
 
     hsh = hash(tag);
+    hsh = get_check_tag_matches_hash_table_tag(tag, hsh);
 
     /* Get a tweet from that hash location when able */
     acquire(&tweet_table.tag_list[hsh].taglock);    
@@ -252,7 +266,8 @@ int t_get(char *tag, char *buf){
     }    
 
     hsh = hash(tag);
-    
+    hsh = get_check_tag_matches_hash_table_tag(tag, hsh);
+
     acquire(&tweet_table.tag_list[hsh].taglock);
     if(0 == tweet_table.tag_list[hsh].numtweets){
         /* Case of no msg with this tag; nothing to put in buffer */
