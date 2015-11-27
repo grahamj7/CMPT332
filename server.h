@@ -10,8 +10,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#define SENDPORT "3490" /* the port client will be connecting to */
-#define RECEIVEPORT "3491" /* the port client will be connecting to */
+#define SENDPORT "30490" /* the port client will be connecting to */
+#define RECEIVEPORT "30491" /* the port client will be connecting to */
 
 #define MAXDATASIZE 100 /* max number of bytes we can get at once */
 
