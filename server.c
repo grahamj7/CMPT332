@@ -279,7 +279,7 @@ void sendToAllClients(char *buf) {
 
 
 
-void *client_receive_func(void *args) {
+void *client_receive_func() {
     char *buf=NULL;
 
     while(1) {
@@ -300,7 +300,7 @@ void *client_receive_func(void *args) {
 }
 
 void *client_send_func(void *args) {
-    int client_fd;
+    int client_fd, size;
     char *message, *buf=NULL;
     struct clients *client;
 
@@ -315,10 +315,12 @@ void *client_send_func(void *args) {
             pthread_exit(NULL);
         }
         
-        message = malloc(MAXDATASIZE*sizeof(char));
-        snprintf(message, MAXDATASIZE, "%s, %d: %s", client->address, atoi(SENDPORT), 
-            ++buf);
-
+	    size = strlen(client->address)+strlen(SENDPORT)+1+MAXDATASIZE*sizeof(char);
+        message = malloc(size);
+        if (buf[0] == '/')
+            ++buf;
+        snprintf(message, size, "%s, %d: %s", client->address, atoi(SENDPORT), 
+            buf);
         addToMessageQueue(message);    
         /* wake up waiting thread with condition variable */
     }
@@ -534,8 +536,8 @@ int main(void) {
     MessageQueue = NULL;
     signal(SIGPIPE, SIG_IGN);
 
-    printf("Port: %s\nserver: waiting for clientSenders...\n", SENDPORT);
-    printf("Port: %s\nserver: waiting for clientRecievers...\n", RECEIVEPORT);
+    printf("server: waiting for clientSenders on Port: %s\n", SENDPORT);
+    printf("server: waiting for clientRecievers on Port: %s\n", RECEIVEPORT);
     fflush(stdout);
     
     client_send_thread = (pthread_t) malloc(sizeof(pthread_t));

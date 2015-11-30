@@ -17,15 +17,13 @@
 #include "server.h"
 
 char *recvMessage(int socket_fd){
-    char *buf = malloc(MAXDATASIZE * sizeof(char));
+    char *buf = malloc(INET6_ADDRSTRLEN+sizeof(SENDPORT)+(MAXDATASIZE * sizeof(char)));
     ssize_t numbytes = -1;
-    if ((numbytes = recv(socket_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+    if ((numbytes = recv(socket_fd, buf, INET6_ADDRSTRLEN+sizeof(SENDPORT)+MAXDATASIZE, 0)) == -1) {
         perror("recv");
         exit(1);
     } else if (numbytes == 0)
         buf = "abort";
-    else
-        buf[numbytes] = '\0';
     return buf;
 }
 
@@ -56,19 +54,20 @@ void *get_in_addr(struct sockaddr *sa)  {
 
 int main(int argc, char *argv[]) {
     int socket_fd = -1, rv;
-    char s[INET6_ADDRSTRLEN], *host;
+    char s[INET6_ADDRSTRLEN], *host, *recvPort=RECEIVEPORT;
     struct addrinfo hints, *servinfo, *p;
 
-    if (argc != 2)
-        host = "localhost";
-    else
-        host = argv[1];
-
+    if (argc != 3) {
+        printf("Argument error. Usage: Recv_Client <server_ip_address> <server_port_number>\n");
+	exit(1);
+    }
+    host = argv[1];
+    recvPort = argv[2];
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((rv = getaddrinfo(host, RECEIVEPORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(host, recvPort, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }

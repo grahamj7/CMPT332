@@ -21,10 +21,10 @@ run_server: Server
 	@./Server
 
 run_recv_client: Recv_Client
-	@./Recv_Client
+	@./Recv_Client "localhost" "30491"
 
 run_send_client: Send_Client
-	@./Send_Client
+	@./Send_Client localhost 30490
 
 Server: server.c server.h
 	$(CC) $(CCFLAGS) -o Server server.c
