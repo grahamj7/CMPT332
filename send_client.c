@@ -11,14 +11,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <pthread.h>
 #include "server.h"
 
 void sendMessage(int socket_fd, char *message) {
-    if(send(socket_fd, message, strlen(message), 0) == -1)
-        perror("sending message");
+    if(send(socket_fd, message, strlen(message), 0) == -1) {
+        fprintf(stderr, "Server went away\n");
+	exit(1);
+    }
 }
 
 int run_send_client(int socket_fd){
@@ -95,7 +98,7 @@ int main(int argc, char *argv[]) {
     printf("client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); /* all done with this structure */
-
+    signal(SIGPIPE, SIG_IGN);
     return run_send_client(socket_fd);
 }
 
