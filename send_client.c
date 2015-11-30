@@ -27,9 +27,9 @@ int run_send_client(int socket_fd){
     while(1){
         printf("prompt>> ");
         buf = fgets(buf, MAXDATASIZE-1, stdin);
-        snprintf(message, MAXDATASIZE, "/%s", buf);
-        if(strcmp(buf, "quit") == 0)
+        if(strcmp(buf, "quit\n") == 0)
              break;
+        snprintf(message, MAXDATASIZE, "/%s", buf);
         sendMessage(socket_fd, message);
     }
 
@@ -47,19 +47,23 @@ void *get_in_addr(struct sockaddr *sa)  {
 
 int main(int argc, char *argv[]) {
     int socket_fd = -1, rv;
-    char s[INET6_ADDRSTRLEN], *host;
+    char s[INET6_ADDRSTRLEN], *host, *sendport = SENDPORT;
     struct addrinfo hints, *servinfo, *p;
 
-    if (argc != 2)
-        host = "localhost";
-    else
+    if (argc != 3){
+        printf("Argument error. Useage: Send_Client <server_ip_address> <server_port_number>\n");
+        exit(1);
+    }
+    else {
         host = argv[1];
+        sendport = argv[2];
+    }
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((rv = getaddrinfo(host, SENDPORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(host, sendport, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
