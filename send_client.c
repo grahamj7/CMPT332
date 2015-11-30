@@ -23,18 +23,14 @@ void sendMessage(int socket_fd, char *message) {
 
 int run_send_client(int socket_fd){
     char *buf = malloc(MAXDATASIZE * sizeof(char)), *message = malloc(MAXDATASIZE * sizeof(char));
-    size_t end;
 
     while(1){
         printf("prompt>> ");
-        buf = fgets(buf, MAXDATASIZE-2, stdin);
-        end = strlen(buf) - 1;
-        if (buf[end] == '\n')
-            buf[end] = '\0';
+        buf = fgets(buf, MAXDATASIZE-1, stdin);
         snprintf(message, MAXDATASIZE, "/%s", buf);
+        if(strcmp(buf, "quit") == 0)
+             break;
         sendMessage(socket_fd, message);
-       if(strcmp(buf, "quit") == 0)
-            break;
     }
 
     close(socket_fd);
