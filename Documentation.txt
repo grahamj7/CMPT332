@@ -11,21 +11,66 @@ Files included:
 Makefile
 
 server.c
-  Runs a simple server that can have multiple local or remote sender or receiver clients.
-  Any messages sent to the server by a sender client will pass of the message to any currently connected
-  receiver clients.
+  Runs a simple server that can have multiple local or remote sender or receiver 
+  clients.Any messages sent to the server by a sender client will pass of the 
+  message to any currently connected receiver clients.
   
 send_client.c
-  Runs a sender client that can send messages of up to 1000 characters at a time to the server.
+  Runs a sender client that can send messages of up to 1000 characters at a time
+  to the server from stdin.
 
 recv_client.c
-  Runs a receiever client to receive messages of up to 1000 characters at a time.
+  Runs a receiever client to receive messages of up to 1000 characters at a time, 
+  and prints them to stdout.
 
 server.h
   Header file for the system.
   
 ============
 What is working:
+  Each receiver receives messages as sent by sender clients from time of 
+  receiver connection and forward.
+  
+  The messages are sent correctly. A maximum message size of 1000 characters was 
+  arbitarily chosen, and could easily be increased or decreased. System will give 
+  friendly print out if message exceeds 1000 characters.
+  
+What is not working:
+  The entire system works, according to assignment specs.
+  
+
+============
+Test results:
+Sender, receiver, and server all on different computers, one on non-local network
+with many senders and receivers passed all tests. We tested both short and maximum length
+messages. We also tested empty messages, special characters, and messages that were too
+long. 
+
+We tested receivers and senders joining and leaving the network at different intervals, 
+and the program behaves as expected. 
+
+'quit' works to exit the sender, but there is no graceful exit for receiver or server,
+due to the fact that they are only listeners and take no stdin input.
 
 
 
+
+Here's a dinosaur for your marking enjoyment:
+
+                                 .       .
+                                / `.   .' \
+                        .---.  <    > <    >  .---.
+                        |    \  \ - ~ ~ - /  /    |
+                         ~-..-~             ~-..-~
+                     \~~~\.'                    `./~~~/
+           .-~~^-.    \__/                        \__/
+         .'  O    \     /               /       \  \
+        (_____,    `._.'               |         }  \/~~~/
+         `----.          /       }     |        /    \__/
+               `-.      |       /      |       /      `. ,~~|
+                   ~-.__|      /_ - ~ ^|      /- _      `..-'   f: f:
+                        |     /        |     /     ~-.     `-. _||_||_
+                        |_____|        |_____|         ~ - . _ _ _ _ _>
+
+                         
+  
