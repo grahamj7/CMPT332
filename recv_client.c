@@ -17,9 +17,10 @@
 #include "server.h"
 
 char *recvMessage(int socket_fd){
-    char *buf = malloc(INET6_ADDRSTRLEN+sizeof(SENDPORT)+(MAXDATASIZE * sizeof(char)));
+    ssize_t size = INET6_ADDRSTRLEN+sizeof(SENDPORT)+(MAXDATASIZE * sizeof(char));
+    char *buf = malloc(size);
     ssize_t numbytes = -1;
-    if ((numbytes = recv(socket_fd, buf, INET6_ADDRSTRLEN+sizeof(SENDPORT)+MAXDATASIZE, 0)) == -1) {
+    if ((numbytes = recv(socket_fd, buf, size, 0)) == -1) {
         perror("recv");
         exit(1);
     } else if (numbytes == 0)

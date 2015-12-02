@@ -93,7 +93,7 @@ char *recvMessage(int client_fd){
     ssize_t numbytes;
     char *buf = malloc(MAXDATASIZE * sizeof(char));
 
-    if ((numbytes = recv(client_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+    if ((numbytes = recv(client_fd, buf, MAXDATASIZE, 0)) == -1) {
         perror("recv");
         exit(1);
     }
@@ -107,7 +107,7 @@ char *recvMessage(int client_fd){
 
 int sendMessage(int client_fd, char *message) {
     printf("send to client: %d\n", client_fd);
-    if (send(client_fd, message, strlen(message), 0) == -1) {
+    if (send(client_fd, message, strlen(message)+1, 0) == -1) {
         fprintf(stdout, "Error: sending to %d\n", client_fd);
         return -1;
     }
@@ -215,6 +215,7 @@ void sendToAllClients(char *buf) {
     struct clients *cursor;
     int i, *bad_list, bad_size;
     pthread_mutex_lock(&recv_mutex);
+    
 
     bad_size = 0;
     bad_list = malloc(recv_size * sizeof(int));
@@ -314,8 +315,7 @@ void *client_send_func(void *args) {
         else if (strcmp(buf, "abort") == 0){
             pthread_exit(NULL);
         }
-        
-	    size = strlen(client->address)+strlen(SENDPORT)+1+MAXDATASIZE*sizeof(char);
+	    size = strlen(client->address)+strlen(SENDPORT)+ strlen(buf) + 4;
         message = malloc(size);
         if (buf[0] == '/')
             ++buf;

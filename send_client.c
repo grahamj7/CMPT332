@@ -25,15 +25,26 @@ void sendMessage(int socket_fd, char *message) {
 }
 
 int run_send_client(int socket_fd){
-    char *buf = malloc(MAXDATASIZE * sizeof(char)), *message = malloc(MAXDATASIZE * sizeof(char));
+    char *buf, *message;
+    size_t len = 0;
 
     while(1){
         printf("prompt>> ");
-        buf = fgets(buf, MAXDATASIZE-1, stdin);
-        if(strcmp(buf, "quit\n") == 0)
-             break;
-        snprintf(message, MAXDATASIZE, "/%s", buf);
-        sendMessage(socket_fd, message);
+        if(-1 != getline(&buf, &len, stdin)){
+            if(strcmp(buf, "quit\n") == 0)
+                break;
+            if(strlen(buf) > (MAXDATASIZE)){
+                printf("Message too long. Please enter a shorter message.\n");
+            } else {
+                message = malloc(strlen(buf) * sizeof(char));
+                snprintf(message, MAXDATASIZE+1, "/%s", buf);
+                message[strlen(buf)] = '\0';
+                sendMessage(socket_fd, message);
+                buf = NULL;
+            }
+        } else {
+            printf("Failed to read message.\n");
+        }
     }
 
     close(socket_fd);

@@ -6,6 +6,26 @@ Jennifer Rospad - jlr247
 
 File: Documentation.txt
 ========================================
+Files included:
+
+Makefile
+
+server.c
+  Runs a simple server that can have multiple local or remote sender or receiver clients.
+  Any messages sent to the server by a sender client will pass of the message to any currently connected
+  receiver clients.
+  
+send_client.c
+  Runs a sender client that can send messages of up to 1000 characters at a time to the server.
+
+recv_client.c
+  Runs a receiever client to receive messages of up to 1000 characters at a time.
+
+server.h
+  Header file for the system.
+  
+============
+What is working:
 
 
 

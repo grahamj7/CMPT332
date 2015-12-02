@@ -13,7 +13,7 @@
 #define SENDPORT "30490" /* the port client will be connecting to */
 #define RECEIVEPORT "30491" /* the port client will be connecting to */
 
-#define MAXDATASIZE 1000 /* max number of bytes we can get at once */
+#define MAXDATASIZE 1001 /* max number of bytes we can get at once */
 
 
 
