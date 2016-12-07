@@ -6,6 +6,28 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "spinlock.h"
+
+struct {
+  struct spinlock lock;
+  struct proc proc[NPROC];
+} ptable;
+		
+int
+sys_getpcount(void)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  int count = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    // Process states: UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE
+    if(p->state == SLEEPING){count++;}
+    else if(p->state == RUNNABLE){count++;}
+    else if(p->state == RUNNING){count++;}
+  }
+  release(&ptable.lock);
+  return count;
+}
 
 int
 sys_fork(void)
